@@ -1,30 +1,25 @@
-let QRCode = require('qrcode')
+const QRCode = require('qrcode')
+const sharp = require('sharp');
 
 
 module.exports.getQRCode = async (event) => {
 
     const input = JSON.parse(event.body);
     const url = input.url;
-    console.log(url);
+
     let generatedQR = await generateQR(url);
-    console.log(generatedQR)
+    let nGenerated = await sharp('let_me.png')
+        .composite([{input: generatedQR, gravity: 'centre' }])
+        .toBuffer();
     return {
         statusCode: 200,
         headers: {
             'Access-Control-Allow-Origin': '*',
             'content-type': 'image/png'
         },
-        body: generatedQR,
+        body: nGenerated,
         isBase64Encoded: true
     };
-    // {
-    //     statusCode: 200,
-    //     headers: {
-    //         'Access-Control-Allow-Origin': '*',
-    //         'content-type': 'image/png'
-    //     },
-    //     body: generatedQR
-    // };
 
 
 };
@@ -36,3 +31,9 @@ const generateQR = async text => {
         return console.error(err);
     }
 };
+
+const doATransform = function (buffer){
+    return sharp(buffer)
+        .resize(320, 240)
+        .toBuffer();
+}
