@@ -26,11 +26,18 @@ functions:
           method: post
           cors: true
 
+  getUsers:
+    handler: index.getUsers
+    events:
+      - http:
+          path: users
+          method: get
+          cors: true
   getUser:
     handler: index.getUser
     events:
       - http:
-          path: users
+          path: users/{id}
           method: get
           cors: true
   postUser:
@@ -43,3 +50,36 @@ functions:
 
 plugins:
   - serverless-offline
+  - serverless-dynamodb-local
+
+custom:
+  dynamodb:
+    # If you only want to use DynamoDB Local in some stages, declare them here
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      heapInitial: 200m
+      heapMax: 1g
+      migrate: true
+      seed: true
+      convertEmptyValues: true
+
+
+resources:
+  Resources:
+    usersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: usersTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+
