@@ -19,7 +19,7 @@ provider:
 
 functions:
   getQRCode:
-    handler: index.getQRCode
+    handler: code-service.getQRCode
     events:
       - http:
           path: qr-codes
@@ -27,21 +27,21 @@ functions:
           cors: true
 
   getUsers:
-    handler: index.getUsers
+    handler: user-service.getUsers
     events:
       - http:
           path: users
           method: get
           cors: true
   getUser:
-    handler: index.getUser
+    handler: user-service.getUser
     events:
       - http:
           path: users/{id}
           method: get
           cors: true
   postUser:
-    handler: index.postUser
+    handler: user-service.postUser
     events:
       - http:
           path: users
