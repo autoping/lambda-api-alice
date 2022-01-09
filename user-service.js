@@ -23,6 +23,7 @@ module.exports.getUser = async (event) => {
 module.exports.postUser = async (event) => {
     const user = JSON.parse(event.body);
     let statusCode = 200;
+
     //validate
     // user with same email
     if (user.email) {
@@ -33,11 +34,20 @@ module.exports.postUser = async (event) => {
             return response.getResponse(statusCode, "User exists with same email");
         }
     }
-    //todo
+
     // user with same phone
+    if (user.phone){
+        let withSamePhone =  await userRepo.getUserByPhone(user.phone);
+        if (withSamePhone.Count) {
+            statusCode = 400;
+            console.log(withSamePhone);
+            return response.getResponse(statusCode, "User exists with phone");
+        }
+    }
 
     user.createdAt = new Date().toJSON();
     user.id = uuid.v4();
+    user.confirmed = false;
     let created = await userRepo.putUser(user);
     return response.getResponse(statusCode, created);
 }
