@@ -1,5 +1,6 @@
 'use strict'
 const uuid = require("uuid");
+// const crypto = require("crypto");
 const userRepo = require('./user-repo');
 const response = require('./response');
 
@@ -21,9 +22,19 @@ module.exports.getUser = async (event) => {
 
 
 module.exports.postUser = async (event) => {
-    const user = JSON.parse(event.body);
+    const userInput = JSON.parse(event.body);
     let statusCode = 200;
 
+    const user = {
+        id: uuid.v4(),
+        confirmed: false,
+        externalKey: undefined,
+        chatId: undefined,
+        name: userInput.name,
+        email: userInput.email,
+        phone: userInput.phone,
+        createdAt: new Date().toJSON()
+    }
     //validate
     // user with same email
     if (user.email) {
@@ -36,8 +47,8 @@ module.exports.postUser = async (event) => {
     }
 
     // user with same phone
-    if (user.phone){
-        let withSamePhone =  await userRepo.getUserByPhone(user.phone);
+    if (user.phone) {
+        let withSamePhone = await userRepo.getUserByPhone(user.phone);
         if (withSamePhone.Count) {
             statusCode = 400;
             console.log(withSamePhone);
@@ -45,12 +56,47 @@ module.exports.postUser = async (event) => {
         }
     }
 
-    user.createdAt = new Date().toJSON();
-    user.id = uuid.v4();
-    user.confirmed = false;
     let created = await userRepo.putUser(user);
     return response.getResponse(statusCode, created);
 }
+
+module.exports.setExternalKeyToUser = async (event) => {
+    let id = event.pathParameters.id;
+    let user = this.getUser(id);
+    const input = JSON.parse(event.body);
+    if (input.externalKey) {
+        //todo check if there is no such
+        return response.getResponse(400, "Custom external keys not implemented")
+    } else {
+        // user.externalKey = crypto.randomBytes(48).toString('hex');
+    }
+    let created = await userRepo.putUser(user);
+    return response.getResponse(statusCode, created);
+};
+
+module.exports.confirmUser = async (event) => {
+    let id = event.pathParameters.id;
+    let user = this.getUser(id);
+    const input = JSON.parse(event.body);
+    if (input.chatId) {
+        user.chatId = input.chatId;
+        user.confirmed = true;
+    } else {
+        return response.getResponse(400, "There is no chatId in request body")
+    }
+    let created = await userRepo.putUser(user);
+    return response.getResponse(statusCode, created);
+}
+
+const getUser = async (userId) => {
+    let result = await userRepo.getUser(null, id);
+    if (!result.Count) {
+        return response.getResponse(400, 'There is no user with such an id');
+    }
+    let user = result.Items[0];
+    return user;
+}
+
 
 
 

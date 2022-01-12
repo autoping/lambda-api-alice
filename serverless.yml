@@ -33,6 +33,13 @@ functions:
           path: users
           method: get
           cors: true
+  postUser:
+    handler: user-service.postUser
+    events:
+      - http:
+          path: users
+          method: post
+          cors: true
   getUser:
     handler: user-service.getUser
     events:
@@ -40,11 +47,18 @@ functions:
           path: users/{id}
           method: get
           cors: true
-  postUser:
-    handler: user-service.postUser
+  confirmUser:
+    handler: user-service.confirmUser
     events:
       - http:
-          path: users
+          path: users/{id}/confirm
+          method: post
+          cors: true
+  setExternalKeyToUser:
+    handler: user-service.setExternalKeyToUser
+    events:
+      - http:
+          path: users/{id}/set-key
           method: post
           cors: true
 
