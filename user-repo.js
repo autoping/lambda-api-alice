@@ -5,19 +5,19 @@ const AWS = require("aws-sdk");
 const usersTableName = "usersTable";
 
 //to use for local and prod
-// const dynamodb = require('serverless-dynamodb-client');
-//
-// const rawClient = dynamodb.raw;  // returns an instance of new AWS.DynamoDB()
-//
-// const docClient = dynamodb.doc;  // return an instance of new AWS.DynamoDB.DocumentClient()
+const dynamodb = require('serverless-dynamodb-client');
+const docClient = dynamodb.doc;
 
 //temp for local rn
+/*
 const docClient = new AWS.DynamoDB.DocumentClient({
     region: 'localhost',
     endpoint: 'http://localhost:8000',
     accessKeyId: 'DEFAULT_ACCESS_KEY',  // needed if you don't have aws credentials at all in env
     secretAccessKey: 'DEFAULT_SECRET' // needed if you don't have aws credentials at all in env
 })
+*/
+
 module.exports.getUsers = async function () {
     //todo - to user repo
     let params = {
