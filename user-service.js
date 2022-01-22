@@ -68,7 +68,7 @@ module.exports.setExternalKeyToUser = async (event) => {
         //todo check if there is no such
         return response.getResponse(400, "Custom external keys not implemented")
     } else {
-        // user.externalKey = crypto.randomBytes(48).toString('hex');
+        user.externalKey = crypto.randomBytes(48).toString('hex');
     }
     let created = await userRepo.putUser(user);
     return response.getResponse(statusCode, created);
