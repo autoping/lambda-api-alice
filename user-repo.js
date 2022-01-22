@@ -9,6 +9,7 @@ const dynamodb = require('serverless-dynamodb-client');
 const docClient = dynamodb.doc;
 
 //temp for local rn
+
 /*
 const docClient = new AWS.DynamoDB.DocumentClient({
     region: 'localhost',
