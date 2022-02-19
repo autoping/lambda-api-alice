@@ -8,7 +8,13 @@ const response = require('./response');
 
 module.exports.setCardToUser = async (event) => {
     let id = event.pathParameters.id;
-    let user = userService.getUser(id);
+    //todo
+    let result = await userRepo.getUser(null, id);
+    if (!result.Count) {
+        return response.getResponse(400, 'There is no user with such an id');
+    }
+    let user = result.Items[0];
+    //
     const input = JSON.parse(event.body);
     let card;
     if (input.externalKey) {

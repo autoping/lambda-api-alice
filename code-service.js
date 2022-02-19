@@ -12,18 +12,18 @@ module.exports.getQRCode = async (event) => {
     let nGenerated = await sharp('let_me.png')
         .composite([{input: generatedQR, gravity: 'centre'}])
         .toBuffer();
-    console.log("generatedqr:", nGenerated);
+    // console.log("generatedqr:", nGenerated);
     return {
         statusCode: 200,
         headers: {
-            'Access-Control-Allow-Origin': '*',
-            'content-type': 'image/png'
+            'Access-Control-Allow-Origin': '*'
+
         },
         body: nGenerated,
         isBase64Encoded: true
     };
 
-
+//// 'content-type': 'image/png'
 };
 
 const generateQR = async text => {

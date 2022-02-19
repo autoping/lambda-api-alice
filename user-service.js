@@ -63,7 +63,13 @@ module.exports.postUser = async (event) => {
 
 module.exports.confirmUser = async (event) => {
     let id = event.pathParameters.id;
-    let user = this.getUser(id);
+    //todo
+    let result = await userRepo.getUser(null, id);
+    if (!result.Count) {
+        return response.getResponse(400, 'There is no user with such an id');
+    }
+    let user = result.Items[0];
+    //
     const input = JSON.parse(event.body);
     if (input.chatId) {
         user.chatId = input.chatId;
@@ -75,7 +81,8 @@ module.exports.confirmUser = async (event) => {
     return response.getResponse(statusCode, created);
 }
 
-module.exports.getUser = async (userId) => {
+//todo
+const getUser = async (userId) => {
     let result = await userRepo.getUser(null, id);
     if (!result.Count) {
         return response.getResponse(400, 'There is no user with such an id');
