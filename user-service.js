@@ -75,7 +75,7 @@ module.exports.confirmUser = async (event) => {
     return response.getResponse(statusCode, created);
 }
 
-const getUser = async (userId) => {
+module.exports.getUser = async (userId) => {
     let result = await userRepo.getUser(null, id);
     if (!result.Count) {
         return response.getResponse(400, 'There is no user with such an id');

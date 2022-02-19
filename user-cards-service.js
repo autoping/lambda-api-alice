@@ -2,13 +2,13 @@
 const uuid = require("uuid");
 const crypto = require("crypto");
 const userCardsRepo = require('./user-cards-repo');
-const userRepo = require('./user-repo');
+const userService = require('./user-service');
 const response = require('./response');
 
 
 module.exports.setCardToUser = async (event) => {
     let id = event.pathParameters.id;
-    let user = this.getUser(id);
+    let user = userService.getUser(id);
     const input = JSON.parse(event.body);
     let card;
     if (input.externalKey) {
@@ -26,16 +26,6 @@ module.exports.setCardToUser = async (event) => {
     return response.getResponse(statusCode, created);
 };
 
-
-
-const getUser = async (userId) => {
-    let result = await userRepo.getUser(null, id);
-    if (!result.Count) {
-        return response.getResponse(400, 'There is no user with such an id');
-    }
-    let user = result.Items[0];
-    return user;
-}
 
 
 
