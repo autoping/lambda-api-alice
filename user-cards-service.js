@@ -2,7 +2,7 @@
 const uuid = require("uuid");
 const crypto = require("crypto");
 const userCardsRepo = require('./user-cards-repo');
-const userService = require('./user-service');
+const userRepo = require('./user-repo');
 const response = require('./response');
 
 

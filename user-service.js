@@ -78,7 +78,7 @@ module.exports.confirmUser = async (event) => {
         return response.getResponse(400, "There is no chatId in request body")
     }
     let created = await userRepo.putUser(user);
-    return response.getResponse(statusCode, created);
+    return response.getResponse(200, created);
 }
 
 //todo
