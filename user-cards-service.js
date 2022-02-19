@@ -29,7 +29,7 @@ module.exports.setCardToUser = async (event) => {
         userCard: card
     }
     let created = await userCardsRepo.putUserCard(userCard);
-    return response.getResponse(statusCode, created);
+    return response.getResponse(200, created);
 };
 
 
