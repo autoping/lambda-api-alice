@@ -12,6 +12,7 @@ module.exports.getQRCode = async (event) => {
     let nGenerated = await sharp('let_me.png')
         .composite([{input: generatedQR, gravity: 'centre'}])
         .toBuffer();
+    console.log("generatedqr:", nGenerated);
     return {
         statusCode: 200,
         headers: {

@@ -54,17 +54,17 @@ functions:
           path: users/{id}/confirm
           method: post
           cors: true
-  setExternalKeyToUser:
-    handler: user-service.setExternalKeyToUser
+  setCardToUser:
+    handler: user-cards-service.setCardToUser
     events:
       - http:
-          path: users/{id}/set-key
+          path: users/{id}/set-card
           method: post
           cors: true
 
 plugins:
-  - serverless-offline
   - serverless-dynamodb-local
+  - serverless-offline
 
 custom:
   dynamodb:
@@ -83,10 +83,23 @@ custom:
 
 resources:
   Resources:
-    usersTable:
+    users:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: usersTable
+        TableName: users
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    userCards:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: userCards
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S

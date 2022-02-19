@@ -1,6 +1,6 @@
 'use strict'
 const uuid = require("uuid");
-// const crypto = require("crypto");
+const crypto = require("crypto");
 const userRepo = require('./user-repo');
 const response = require('./response');
 
@@ -60,19 +60,6 @@ module.exports.postUser = async (event) => {
     return response.getResponse(statusCode, created);
 }
 
-module.exports.setExternalKeyToUser = async (event) => {
-    let id = event.pathParameters.id;
-    let user = this.getUser(id);
-    const input = JSON.parse(event.body);
-    if (input.externalKey) {
-        //todo check if there is no such
-        return response.getResponse(400, "Custom external keys not implemented")
-    } else {
-        user.externalKey = crypto.randomBytes(48).toString('hex');
-    }
-    let created = await userRepo.putUser(user);
-    return response.getResponse(statusCode, created);
-};
 
 module.exports.confirmUser = async (event) => {
     let id = event.pathParameters.id;
