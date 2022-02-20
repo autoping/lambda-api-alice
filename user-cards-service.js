@@ -32,6 +32,18 @@ module.exports.setCardToUser = async (event) => {
     return response.getResponse(200, created);
 };
 
+module.exports.getUserByCard = async (event) => {
+    let id = event.pathParameters.id;
+
+    let result = await userCardsRepo.getUserCard(id);
+    if (!result.Count) {
+        return response.getResponse(400, 'There is no card with such id');
+    }
+    let card = result.Items[0];
+    let user = userRepo.getUser(null, card.userId)[0];
+    card.user = user;
+    return response.getResponse(200, card);
+};
 
 
 

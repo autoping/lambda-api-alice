@@ -61,6 +61,13 @@ functions:
           path: users/{id}/set-card
           method: post
           cors: true
+  getUserByCard:
+    handler: user-cards-service.getUserByCard
+    events:
+      - http:
+          path: cards/{id}
+          method: get
+          cors: true
 
 plugins:
   - serverless-dynamodb-local
