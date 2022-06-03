@@ -16,7 +16,7 @@ module.exports.getQRCode = async (event) => {
     return{
         'headers': { "Content-Type": "image/png" },
         'statusCode': 200,
-        'body': Buffer.from(nGenerated, 'utf-8'),
+        'body': 'it s ok',
         'isBase64Encoded': true
     };
     // {
