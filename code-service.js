@@ -14,11 +14,12 @@ module.exports.getQRCode = async (event) => {
         .toBuffer();
     // console.log("generatedqr:", nGenerated);
     return{
-        'headers': { "Content-Type": "image/png" },
+
         'statusCode': 200,
-        'body': 'it s ok',
+        'body': Buffer.from(nGenerated, 'utf-8'),
         'isBase64Encoded': true
     };
+    //        'headers': { "Content-Type": "image/png" },
     // {
     //     statusCode: 200,
     //     headers: {
