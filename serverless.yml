@@ -74,6 +74,9 @@ plugins:
   - serverless-offline
 
 custom:
+  apigwBinary:
+    types:
+      - "*/*"
   dynamodb:
     # If you only want to use DynamoDB Local in some stages, declare them here
     stages:
