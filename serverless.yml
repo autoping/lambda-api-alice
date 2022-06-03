@@ -26,6 +26,14 @@ functions:
           method: post
           cors: true
 
+  getQRCodeDef:
+    handler: code-service.getQRCode
+    events:
+      - http:
+          path: qr-codes
+          method: get
+          cors: true
+
   getUsers:
     handler: user-service.getUsers
     events:

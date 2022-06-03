@@ -4,8 +4,8 @@ const QRCode = require('qrcode')
 const sharp = require('sharp');
 
 module.exports.getQRCode = async (event) => {
-
-    const input = JSON.parse(event.body);
+let eb = event?event.body:'some text';
+    const input = JSON.parse(eb);
     const url = input.url;
 
     let generatedQR = await generateQR(url);
