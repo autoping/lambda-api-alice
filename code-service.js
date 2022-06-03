@@ -13,15 +13,21 @@ module.exports.getQRCode = async (event) => {
         .composite([{input: generatedQR, gravity: 'centre'}])
         .toBuffer();
     // console.log("generatedqr:", nGenerated);
-    return {
-        statusCode: 200,
-        headers: {
-            'Access-Control-Allow-Origin': '*'
-
-        },
-        body: nGenerated,
-        isBase64Encoded: true
+    return{
+        'headers': { "Content-Type": "image/png" },
+        'statusCode': 200,
+        'body': base64.b64encode(nGenerated).decode('utf-8'),
+        'isBase64Encoded': True
     };
+    // {
+    //     statusCode: 200,
+    //     headers: {
+    //         'Access-Control-Allow-Origin': '*'
+    //
+    //     },
+    //     body: nGenerated,
+    //     isBase64Encoded: true
+    // };
 
 //// 'content-type': 'image/png'
 };
