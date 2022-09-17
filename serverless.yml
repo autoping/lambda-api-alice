@@ -1,12 +1,12 @@
 service: lambda-api-alice
 
-frameworkVersion: '2'
+frameworkVersion: '3'
 
 provider:
   name: aws
   stage: dev
   region: eu-central-1
-  runtime: nodejs12.x
+  runtime: nodejs16.x
   lambdaHashingVersion: 20201221
 
   iam:
@@ -127,4 +127,3 @@ resources:
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
-
