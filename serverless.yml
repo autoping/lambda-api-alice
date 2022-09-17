@@ -108,11 +108,9 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-        AttributeDefinitions:
-          - AttributeName: nickname
-            AttributeType: S
-        AttributeDefinitions:
           - AttributeName: chatId
+            AttributeType: S
+          - AttributeName: nickname
             AttributeType: S
         KeySchema:
           - AttributeName: id
@@ -127,10 +125,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-        AttributeDefinitions:
           - AttributeName: userId
             AttributeType: S
-        AttributeDefinitions:
           - AttributeName: title
             AttributeType: S
         KeySchema:
@@ -146,10 +142,8 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-        AttributeDefinitions:
           - AttributeName: assetId
             AttributeType: S
-        AttributeDefinitions:
           - AttributeName: description
             AttributeType: S
         KeySchema:
