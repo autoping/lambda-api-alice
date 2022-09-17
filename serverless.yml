@@ -104,7 +104,7 @@ resources:
     users:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: users
+        TableName: autoping-users
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -117,7 +117,7 @@ resources:
     assets:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: assets
+        TableName: autoping-assets
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -130,7 +130,7 @@ resources:
     cards:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: cards
+        TableName: autoping-cards
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
