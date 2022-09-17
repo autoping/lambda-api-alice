@@ -108,10 +108,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-          - AttributeName: chatId
-            AttributeType: S
-          - AttributeName: nickname
-            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
@@ -125,10 +121,6 @@ resources:
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
-          - AttributeName: userId
-            AttributeType: S
-          - AttributeName: title
-            AttributeType: S
         KeySchema:
           - AttributeName: id
             KeyType: HASH
@@ -141,10 +133,6 @@ resources:
         TableName: cards
         AttributeDefinitions:
           - AttributeName: id
-            AttributeType: S
-          - AttributeName: assetId
-            AttributeType: S
-          - AttributeName: description
             AttributeType: S
         KeySchema:
           - AttributeName: id
