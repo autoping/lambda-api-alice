@@ -1,6 +1,7 @@
 'use strict'
 const uuid = require("uuid");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken')
 const crypto = require("crypto");
 const userRepo = require('./user-repo');
 const response = require('./response');
@@ -103,7 +104,7 @@ module.exports.postCards = async (event) => {
     }
     //validate
     // asset exists
-    let asset = await userRepo.getAsset( card.assetId);
+    let asset = await userRepo.getAsset(card.assetId);
     if (!asset.Count) {
         statusCode = 400;
         return response.getResponse(statusCode, "There is no asset with id " + card.assetId);
@@ -111,6 +112,33 @@ module.exports.postCards = async (event) => {
 
     let created = await userRepo.putCard(card);
     return response.getResponse(statusCode, created);
+}
+
+module.exports.login = async (event) => {
+    const credentials = JSON.parse(event.body);
+    let statusCode = 200;
+
+    if (!(credentials.login || "").trim()
+        || !(credentials.password || "").trim()) {
+        statusCode = 501;
+        return response.getResponse(statusCode, "Please, provide login and password");
+    }
+
+    //validate
+    let users = await userRepo.getUser(credentials.login);
+
+    let passwordIsCorrect = await bcrypt.compare(credentials.password, users.Items[0].passwordHash);
+
+    if (!users.Count || !passwordIsCorrect) {
+        statusCode = 501;
+        return response.getResponse(statusCode, "Login or password are wrong, please, try another!");
+    }
+    //todo)
+    let token =jwt.sign(users.Items[0], "pleaseAddHereSomeSecrectKey");
+    let jwt_res = {
+        access_token: token
+    }
+    return response.getResponse(statusCode, jwt_res);
 }
 
 

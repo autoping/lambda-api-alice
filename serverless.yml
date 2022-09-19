@@ -42,6 +42,14 @@ functions:
           method: post
           cors: true
 
+  login:
+    handler: user-service.login
+    events:
+      - http:
+          path: login
+          method: post
+          cors: true
+
   getQRCode:
     handler: code-service.getQRCode
     events:
