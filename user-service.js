@@ -45,15 +45,71 @@ module.exports.postUser = async (event) => {
     //validate
     // user login uniqueness
 
-        let withSameLogin = await userRepo.getUser(user.login);
-        if (withSameLogin.Count) {
-            statusCode = 400;
-            console.log(withSameLogin);
-            return response.getResponse(statusCode, "User exists with same login, please choose another.");
-        }
+    let withSameLogin = await userRepo.getUser(user.login);
+    if (withSameLogin.Count) {
+        statusCode = 400;
+        console.log(withSameLogin);
+        return response.getResponse(statusCode, "User exists with same login, please choose another.");
+    }
 
 
     let created = await userRepo.putUser(user);
+    return response.getResponse(statusCode, created);
+}
+
+module.exports.postAssets = async (event) => {
+    const assetInput = JSON.parse(event.body);
+    let statusCode = 200;
+
+    if (!(assetInput.userId || "").trim()
+        || !(assetInput.name || "").trim()) {
+        statusCode = 400;
+        return response.getResponse(statusCode, "Please, fill up userId and name");
+    }
+
+    const asset = {
+        id: uuid.v4(),
+        name: assetInput.name,
+        userId: assetInput.userId,
+        createdAt: Math.floor(Date.now() / 1000)
+    }
+    //validate
+    // user exists
+
+    let user = await userRepo.getUser(null, asset.userId);
+    if (!user.Count) {
+        statusCode = 400;
+        return response.getResponse(statusCode, "There is no user with id " + asset.userId);
+    }
+
+    let created = await userRepo.putAsset(asset);
+    return response.getResponse(statusCode, created);
+}
+
+module.exports.postCards = async (event) => {
+    const cardInput = JSON.parse(event.body);
+    let statusCode = 200;
+
+    if (!(cardInput.assetId || "").trim()) {
+        statusCode = 400;
+        return response.getResponse(statusCode, "Please, fill up assetId");
+    }
+
+    const card = {
+        id: uuid.v4(),
+        assetId: cardInput.assetId,
+        description: cardInput.description,
+        createdAt: Math.floor(Date.now() / 1000)
+    }
+    //validate
+    // asset exists
+    let asset = await userRepo.getAsset( card.assetId);
+    if (!asset.Count) {
+        statusCode = 400;
+        return response.getResponse(statusCode, "There is no asset with id " + card.assetId);
+    }
+
+    let created = await userRepo.putCard(card);
     return response.getResponse(statusCode, created);
 }
 

@@ -3,12 +3,14 @@
 const AWS = require("aws-sdk");
 
 const usersTableName = "autoping-users";
+const assetsTableName = "autoping-assets";
+const cardsTableName = "autoping-cards";
 
-//to use for local and prod
+// //to use for local and prod
 const dynamodb = require('serverless-dynamodb-client');
 const docClient = dynamodb.doc;
 
-//temp for local rn
+// temp for local rn
 // const docClient = new AWS.DynamoDB.DocumentClient({
 //     region: 'localhost',
 //     endpoint: 'http://localhost:8000',
@@ -33,6 +35,50 @@ module.exports.putUser = async function (user) {
     let created = await this.getUser(null, user.id);
     return created.Items[0];
 };
+
+module.exports.putAsset = async function (asset) {
+    let params = {
+        TableName: assetsTableName,
+        Item: asset
+    };
+    let result = await docClient.put(params).promise();
+    let created = await this.getAsset( asset.id);
+    return created.Items[0];
+};
+
+module.exports.getAsset = async function (id) {
+    let params = {};
+    params = {
+        TableName: assetsTableName,
+        FilterExpression: " id = :id ",
+        ExpressionAttributeValues: {
+            ":id": id
+        }
+    };
+    return await docClient.scan(params).promise();
+}
+
+module.exports.putCard = async function (card) {
+    let params = {
+        TableName: cardsTableName,
+        Item: card
+    };
+    let result = await docClient.put(params).promise();
+    let created = await this.getCard( card.id);
+    return created.Items[0];
+};
+
+module.exports.getCard = async function (id) {
+    let params = {};
+    params = {
+        TableName: cardsTableName,
+        FilterExpression: " id = :id ",
+        ExpressionAttributeValues: {
+            ":id": id
+        }
+    };
+    return await docClient.scan(params).promise();
+}
 
 module.exports.getUser = async function (login, id) {
     let params = {};

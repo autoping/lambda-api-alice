@@ -18,6 +18,30 @@ provider:
           Resource: "*"
 
 functions:
+  postUser:
+    handler: user-service.postUser
+    events:
+      - http:
+          path: users
+          method: post
+          cors: true
+
+  postAssets:
+    handler: user-service.postAssets
+    events:
+      - http:
+          path: assets
+          method: post
+          cors: true
+
+  postCards:
+    handler: user-service.postCards
+    events:
+      - http:
+          path: cards
+          method: post
+          cors: true
+
   getQRCode:
     handler: code-service.getQRCode
     events:
@@ -41,13 +65,7 @@ functions:
           path: users
           method: get
           cors: true
-  postUser:
-    handler: user-service.postUser
-    events:
-      - http:
-          path: users
-          method: post
-          cors: true
+
   getUser:
     handler: user-service.getUser
     events:
