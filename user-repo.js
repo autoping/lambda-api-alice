@@ -2,22 +2,20 @@
 
 const AWS = require("aws-sdk");
 
-const usersTableName = "users";
+const usersTableName = "autoping-users";
 
 //to use for local and prod
 const dynamodb = require('serverless-dynamodb-client');
 const docClient = dynamodb.doc;
 
 //temp for local rn
+// const docClient = new AWS.DynamoDB.DocumentClient({
+//     region: 'localhost',
+//     endpoint: 'http://localhost:8000',
+//     accessKeyId: 'DEFAULT_ACCESS_KEY',  // needed if you don't have aws credentials at all in env
+//     secretAccessKey: 'DEFAULT_SECRET' // needed if you don't have aws credentials at all in env
+// });
 
-/*
-const docClient = new AWS.DynamoDB.DocumentClient({
-    region: 'localhost',
-    endpoint: 'http://localhost:8000',
-    accessKeyId: 'DEFAULT_ACCESS_KEY',  // needed if you don't have aws credentials at all in env
-    secretAccessKey: 'DEFAULT_SECRET' // needed if you don't have aws credentials at all in env
-});
-*/
 
 module.exports.getUsers = async function () {
     let params = {
@@ -33,27 +31,26 @@ module.exports.putUser = async function (user) {
     };
     let result = await docClient.put(params).promise();
     let created = await this.getUser(null, user.id);
-    console.log("bla", created);
     return created.Items[0];
 };
 
-module.exports.getUser = async function (email, id) {
+module.exports.getUser = async function (login, id) {
     let params = {};
-    if (id && email) {
+    if (id && login) {
         params = {
             TableName: usersTableName,
-            FilterExpression: "email = :e AND id = :id ",
+            FilterExpression: "login = :e AND id = :id ",
             ExpressionAttributeValues: {
-                ":e": email,
+                ":e": login,
                 ":id": id
             }
         };
-    } else if (email) {
+    } else if (login) {
         params = {
             TableName: usersTableName,
-            FilterExpression: "email = :e ",
+            FilterExpression: "login = :e ",
             ExpressionAttributeValues: {
-                ":e": email
+                ":e": login
             }
         };
     } else if (id) {

@@ -25,36 +25,31 @@ module.exports.postUser = async (event) => {
     const userInput = JSON.parse(event.body);
     let statusCode = 200;
 
-    const user = {
-        id: uuid.v4(),
-        confirmed: false,
-        externalKey: undefined,
-        chatId: undefined,
-        name: userInput.name,
-        email: userInput.email,
-        phone: userInput.phone,
-        createdAt: new Date().toJSON()
-    }
-    //validate
-    // user with same email
-    if (user.email) {
-        let withSame = await userRepo.getUser(user.email);
-        if (withSame.Count) {
-            statusCode = 400;
-            console.log(withSame);
-            return response.getResponse(statusCode, "User exists with same email");
-        }
+    if (!(userInput.login || "").trim()
+        || !(userInput.password || "").trim()
+        || !(userInput.nickname || "").trim()) {
+        statusCode = 400;
+        return response.getResponse(statusCode, "Please, fill up login, password and nickname");
     }
 
-    // user with same phone
-    if (user.phone) {
-        let withSamePhone = await userRepo.getUserByPhone(user.phone);
-        if (withSamePhone.Count) {
-            statusCode = 400;
-            console.log(withSamePhone);
-            return response.getResponse(statusCode, "User exists with phone");
-        }
+    const user = {
+        id: uuid.v4(),
+        login: userInput.login,
+        passwordHash: userInput.password,
+        nickname: userInput.nickname,
+        chatId: undefined,
+        createdAt: Math.floor(Date.now() / 1000)
     }
+    //validate
+    // user login uniqueness
+
+        let withSameLogin = await userRepo.getUser(user.login);
+        if (withSameLogin.Count) {
+            statusCode = 400;
+            console.log(withSameLogin);
+            return response.getResponse(statusCode, "User exists with same login, please choose another.");
+        }
+
 
     let created = await userRepo.putUser(user);
     return response.getResponse(statusCode, created);

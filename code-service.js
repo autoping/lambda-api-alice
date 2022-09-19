@@ -16,9 +16,10 @@ let eb = event?event.body:'some text';
     return{
         'headers': { 'Content-Type': 'image/png' },
         'statusCode': 200,
-        'body': Buffer.from(nGenerated, 'utf-8'),
+        'body': 'bla',
         'isBase64Encoded': true
     };
+    //Buffer.from(nGenerated, 'utf-8'),
 
     //
     // {

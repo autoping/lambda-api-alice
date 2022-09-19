@@ -40,7 +40,7 @@ module.exports.getUserByCard = async (event) => {
         return response.getResponse(400, 'There is no card with such id');
     }
     let card = result.Items[0];
-    let user = userRepo.getUser(null, card.userId)[0];
+    let user = await userRepo.getUser(null, card.userId)[0];
     card.user = user;
     return response.getResponse(200, card);
 };
