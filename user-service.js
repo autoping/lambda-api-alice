@@ -60,7 +60,23 @@ module.exports.postUser = async (event) => {
     let created = await userRepo.putUser(user);
     return response.getResponse(statusCode, created);
 }
+module.exports.getAssets = async (event) => {
+    let statusCode = 200;
+    let userId = "";
+    try {
+        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+    } catch (e) {
+        return response.getResponse(501, 'Access token is wrong');
+    }
 
+    if(!userId){
+        statusCode = 501;
+        return response.getResponse(statusCode, "There is no userId in token ");
+    }
+
+    let assets = await userRepo.getAssets(userId);
+    return response.getResponse(statusCode, assets);
+}
 module.exports.postAssets = async (event) => {
     const assetInput = JSON.parse(event.body);
     let statusCode = 200;

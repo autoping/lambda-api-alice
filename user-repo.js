@@ -42,8 +42,21 @@ module.exports.putAsset = async function (asset) {
         Item: asset
     };
     let result = await docClient.put(params).promise();
-    let created = await this.getAsset( asset.id);
+    let created = await this.getAsset(asset.id);
     return created.Items[0];
+};
+
+module.exports.getAssets = async function (userId) {
+    let params = {};
+    params = {
+        TableName: assetsTableName,
+        FilterExpression: " userId = :userId ",
+        ExpressionAttributeValues: {
+            ":userId": userId
+        }
+    };
+    let result = await docClient.scan(params).promise();
+    return result.Items;
 };
 
 module.exports.getAsset = async function (id) {
@@ -64,7 +77,7 @@ module.exports.putCard = async function (card) {
         Item: card
     };
     let result = await docClient.put(params).promise();
-    let created = await this.getCard( card.id);
+    let created = await this.getCard(card.id);
     return created.Items[0];
 };
 

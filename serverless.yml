@@ -34,6 +34,14 @@ functions:
           method: post
           cors: true
 
+  getAssets:
+    handler: user-service.getAssets
+    events:
+      - http:
+          path: assets
+          method: get
+          cors: true
+
   postCards:
     handler: user-service.postCards
     events:
