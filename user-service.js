@@ -180,6 +180,14 @@ module.exports.getCards = async (event) => {
     return response.getResponse(statusCode, cards);
 }
 
+module.exports.getCard = async (event) => {
+    let statusCode = 200;
+    let id = event.pathParameters.id;
+
+    let cards = await userRepo.getCard(id);
+    return response.getResponse(statusCode, cards.Items[0]);
+}
+
 module.exports.login = async (event) => {
     const credentials = JSON.parse(event.body);
     let statusCode = 200;
