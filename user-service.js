@@ -1,5 +1,6 @@
 'use strict'
 const uuid = require("uuid");
+const bcrypt = require('bcrypt');
 const crypto = require("crypto");
 const userRepo = require('./user-repo');
 const response = require('./response');
@@ -32,10 +33,11 @@ module.exports.postUser = async (event) => {
         return response.getResponse(statusCode, "Please, fill up login, password and nickname");
     }
 
+    let pHash = await bcrypt.hash(userInput.password, 10);
     const user = {
         id: uuid.v4(),
         login: userInput.login,
-        passwordHash: userInput.password,
+        passwordHash: pHash,
         nickname: userInput.nickname,
         chatId: undefined,
         createdAt: Math.floor(Date.now() / 1000)
