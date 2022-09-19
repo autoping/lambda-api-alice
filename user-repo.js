@@ -93,6 +93,19 @@ module.exports.getCard = async function (id) {
     return await docClient.scan(params).promise();
 }
 
+module.exports.getCards = async function (userId) {
+    let params = {};
+    params = {
+        TableName: cardsTableName,
+        FilterExpression: " userId = :userId ",
+        ExpressionAttributeValues: {
+            ":userId": userId
+        }
+    };
+    let result = await docClient.scan(params).promise();
+    return result.Items;
+};
+
 module.exports.getUser = async function (login, id) {
     let params = {};
     if (id && login) {

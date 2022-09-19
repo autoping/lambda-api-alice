@@ -25,7 +25,6 @@ module.exports.getUser = async (event) => {
     return response.getResponse(200, result.Items);
 }
 
-
 module.exports.postUser = async (event) => {
     const userInput = JSON.parse(event.body);
     let statusCode = 200;
@@ -60,6 +59,25 @@ module.exports.postUser = async (event) => {
     let created = await userRepo.putUser(user);
     return response.getResponse(statusCode, created);
 }
+
+module.exports.getOwnUser = async (event) => {
+    let statusCode = 200;
+    let userId = "";
+    try {
+        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+    } catch (e) {
+        return response.getResponse(501, 'Access token is wrong');
+    }
+
+    if(!userId){
+        statusCode = 501;
+        return response.getResponse(statusCode, "There is no userId in token ");
+    }
+
+    let users = await userRepo.getUser(null, userId);
+    return response.getResponse(statusCode, users.Items[0]);
+}
+
 module.exports.getAssets = async (event) => {
     let statusCode = 200;
     let userId = "";
@@ -77,6 +95,7 @@ module.exports.getAssets = async (event) => {
     let assets = await userRepo.getAssets(userId);
     return response.getResponse(statusCode, assets);
 }
+
 module.exports.postAssets = async (event) => {
     const assetInput = JSON.parse(event.body);
     let statusCode = 200;
@@ -141,6 +160,24 @@ module.exports.postCards = async (event) => {
 
     let created = await userRepo.putCard(card);
     return response.getResponse(statusCode, created);
+}
+
+module.exports.getCards = async (event) => {
+    let statusCode = 200;
+    let userId = "";
+    try {
+        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+    } catch (e) {
+        return response.getResponse(501, 'Access token is wrong');
+    }
+
+    if(!userId){
+        statusCode = 501;
+        return response.getResponse(statusCode, "There is no userId in token ");
+    }
+
+    let cards = await userRepo.getCards(userId);
+    return response.getResponse(statusCode, cards);
 }
 
 module.exports.login = async (event) => {

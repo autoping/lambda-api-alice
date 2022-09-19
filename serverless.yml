@@ -26,6 +26,14 @@ functions:
           method: post
           cors: true
 
+  getOwnUser:
+    handler: user-service.getOwnUser
+    events:
+      - http:
+          path: users/me
+          method: get
+          cors: true
+
   postAssets:
     handler: user-service.postAssets
     events:
@@ -44,6 +52,14 @@ functions:
 
   postCards:
     handler: user-service.postCards
+    events:
+      - http:
+          path: cards
+          method: post
+          cors: true
+
+  getCards:
+    handler: user-service.getCards
     events:
       - http:
           path: cards
