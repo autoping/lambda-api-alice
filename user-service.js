@@ -6,6 +6,9 @@ const crypto = require("crypto");
 const userRepo = require('./user-repo');
 const response = require('./response');
 
+//todo)
+const tokenPrivateKey = "pleaseAddHereSomeSecrectKey";
+
 
 module.exports.getUsers = async (event) => {
     let result = await userRepo.getUsers();
@@ -61,17 +64,27 @@ module.exports.postUser = async (event) => {
 module.exports.postAssets = async (event) => {
     const assetInput = JSON.parse(event.body);
     let statusCode = 200;
+    let userId = "";
+    try {
+        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+    } catch (e) {
+        return response.getResponse(501, 'Access token is wrong');
+    }
 
-    if (!(assetInput.userId || "").trim()
-        || !(assetInput.name || "").trim()) {
+    if(!userId){
+        statusCode = 501;
+        return response.getResponse(statusCode, "There is no userId in token ");
+    }
+
+    if (!(assetInput.name || "").trim()) {
         statusCode = 400;
-        return response.getResponse(statusCode, "Please, fill up userId and name");
+        return response.getResponse(statusCode, "Please, fill up the name of asset");
     }
 
     const asset = {
         id: uuid.v4(),
         name: assetInput.name,
-        userId: assetInput.userId,
+        userId: userId,
         createdAt: Math.floor(Date.now() / 1000)
     }
     //validate
@@ -127,16 +140,14 @@ module.exports.login = async (event) => {
     //validate
     let users = await userRepo.getUser(credentials.login);
 
-    let passwordIsCorrect = await bcrypt.compare(credentials.password, users.Items[0].passwordHash);
-
-    if (!users.Count || !passwordIsCorrect) {
+    if (!users.Count || ! await bcrypt.compare(credentials.password, users.Items[0].passwordHash)) {
         statusCode = 501;
         return response.getResponse(statusCode, "Login or password are wrong, please, try another!");
     }
-    //todo)
-    let token =jwt.sign(users.Items[0], "pleaseAddHereSomeSecrectKey");
+
+    let token = jwt.sign(users.Items[0], tokenPrivateKey);
     let jwt_res = {
-        access_token: token
+        accessToken: token
     }
     return response.getResponse(statusCode, jwt_res);
 }
@@ -170,6 +181,12 @@ const getUser = async (userId) => {
     }
     let user = result.Items[0];
     return user;
+}
+
+
+const getUserIdFromToken = (token) => {
+    let verified = jwt.verify(token, tokenPrivateKey);
+    return verified.id;
 }
 
 
