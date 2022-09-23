@@ -8,6 +8,8 @@ provider:
   region: eu-central-1
   runtime: nodejs16.x
   lambdaHashingVersion: 20201221
+  environment:
+    TOKEN_PRIVATE_KEY: ${self:custom.secret.token-private-key}
 
   iam:
     role:
@@ -90,50 +92,13 @@ functions:
           method: post
           cors: true
 
-  getQRCodeDef:
-    handler: code-service.getQRCode
-    events:
-      - http:
-          path: qr-codes
-          method: get
-          cors: true
-
-  getUsers:
-    handler: user-service.getUsers
-    events:
-      - http:
-          path: users
-          method: get
-          cors: true
-
-  getUser:
-    handler: user-service.getUser
-    events:
-      - http:
-          path: users/{id}
-          method: get
-          cors: true
-  confirmUser:
-    handler: user-service.confirmUser
-    events:
-      - http:
-          path: users/{id}/confirm
-          method: post
-          cors: true
-  setCardToUser:
-    handler: user-cards-service.setCardToUser
-    events:
-      - http:
-          path: users/{id}/set-card
-          method: post
-          cors: true
-
 
 plugins:
   - serverless-dynamodb-local
   - serverless-offline
 
 custom:
+  secret: ${ssm:/aws/reference/secretsmanager/dev/autoping/apialice}
   apigwBinary:
     types:
       - "*/*"

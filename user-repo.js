@@ -7,16 +7,16 @@ const assetsTableName = "autoping-assets";
 const cardsTableName = "autoping-cards";
 
 // //to use for local and prod
-const dynamodb = require('serverless-dynamodb-client');
-const docClient = dynamodb.doc;
+// const dynamodb = require('serverless-dynamodb-client');
+// const docClient = dynamodb.doc;
 
 // temp for local rn
-// const docClient = new AWS.DynamoDB.DocumentClient({
-//     region: 'localhost',
-//     endpoint: 'http://localhost:8000',
-//     accessKeyId: 'DEFAULT_ACCESS_KEY',  // needed if you don't have aws credentials at all in env
-//     secretAccessKey: 'DEFAULT_SECRET' // needed if you don't have aws credentials at all in env
-// });
+const docClient = new AWS.DynamoDB.DocumentClient({
+    region: 'localhost',
+    endpoint: 'http://localhost:8000',
+    accessKeyId: 'DEFAULT_ACCESS_KEY',  // needed if you don't have aws credentials at all in env
+    secretAccessKey: 'DEFAULT_SECRET' // needed if you don't have aws credentials at all in env
+});
 
 
 module.exports.getUsers = async function () {
@@ -56,6 +56,7 @@ module.exports.getAssets = async function (userId) {
         }
     };
     let result = await docClient.scan(params).promise();
+
     return result.Items;
 };
 
@@ -93,13 +94,21 @@ module.exports.getCard = async function (id) {
     return await docClient.scan(params).promise();
 }
 
+//todo check
 module.exports.getCards = async function (userId) {
+    let assets = await this.getAssets(userId);
+    console.log(assets)
+    let assetsIds = [];
+    for (let i = 0; i < assets.length; i++) {
+        assetsIds.push(assets[i].id);
+    }
     let params = {};
+    console.log(assetsIds);
     params = {
         TableName: cardsTableName,
-        FilterExpression: " userId = :userId ",
+        FilterExpression: " assetId IN ('bla')",
         ExpressionAttributeValues: {
-            ":userId": userId
+            ":assetIds": assetsIds
         }
     };
     let result = await docClient.scan(params).promise();
