@@ -1,0 +1,280 @@
+{
+	"info": {
+		"_postman_id": "31ca2647-07b5-412a-9cad-c166df53fda9",
+		"name": "autoping-alice-api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15569163"
+	},
+	"item": [
+		{
+			"name": "post users",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let id = pm.response.json().id;",
+							"let login = pm.response.json().login;",
+							"pm.collectionVariables.set(\"_created_user_id\", id);",
+							"pm.collectionVariables.set(\"_created_user_login\", login);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"login\": \"alice@email.com\",\n    \"nickname\": \"Alice\",\n    \"password\": \"112345\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/users",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post login",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let token = pm.response.json().accessToken;",
+							"pm.collectionVariables.set(\"_access_token\", token);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"login\": \"{{_created_user_login}}\",\n  \"password\": \"112345\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/login",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post assets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let id = pm.response.json().id;",
+							"pm.collectionVariables.set(\"_created_asset_id\", id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"userId\": \"{{_created_user_id}}\",\n  \"name\": \"asset name\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/assets",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"assets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get asset",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let id = pm.response.json().id;",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/assets",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"assets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "post card",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let id = pm.response.json().id;",
+							"pm.collectionVariables.set(\"_created_card_id\", id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"assetId\": \"{{_created_asset_id}}\",\n  \"description\": \"card desc\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/cards",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"cards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get card",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let id = pm.response.json().id;",
+							"pm.collectionVariables.set(\"_created_user_id\", id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/cards",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"cards"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "_created_user_id",
+			"value": ""
+		},
+		{
+			"key": "_created_user_login",
+			"value": ""
+		},
+		{
+			"key": "_access_token",
+			"value": ""
+		},
+		{
+			"key": "_created_card_id",
+			"value": ""
+		},
+		{
+			"key": "_created_asset_id",
+			"value": ""
+		}
+	]
+}
