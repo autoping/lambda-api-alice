@@ -3,10 +3,10 @@ const uuid = require("uuid");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
 const userRepo = require('./user-repo');
+const validator = require('./validator');
 const response = require('./response');
 
 const tokenPrivateKey = process.env.TOKEN_PRIVATE_KEY;
-console.log("tokenPrK",tokenPrivateKey)
 
 
 module.exports.getUsers = async (event) => {
@@ -28,11 +28,26 @@ module.exports.postUser = async (event) => {
     const userInput = JSON.parse(event.body);
     let statusCode = 200;
 
-    if (!(userInput.login || "").trim()
-        || !(userInput.password || "").trim()
-        || !(userInput.nickname || "").trim()) {
-        statusCode = 400;
-        return response.getResponse(statusCode, "Please, fill up login, password and nickname");
+    // if (!(userInput.login || "").trim()
+    //     || !(userInput.password || "").trim()
+    //     || !(userInput.nickname || "").trim()) {
+    //     statusCode = 400;
+    //     return response.getResponse(statusCode, "Please, fill up login, password and nickname");
+    // }
+
+    let loginNoValid = validator.isStringNoValid("login", userInput.login, 1, 24, true);
+    if (loginNoValid) {
+        return response.getResponse(400, loginNoValid);
+    }
+
+    let passwordNoValid = validator.isStringNoValid("password", userInput.password, 1, 18, true);
+    if (passwordNoValid) {
+        return response.getResponse(400, passwordNoValid);
+    }
+
+    let nicknameNoValid = validator.isStringNoValid("nickname", userInput.nickname, 1, 18, true);
+    if (nicknameNoValid) {
+        return response.getResponse(400, nicknameNoValid);
     }
 
     let pHash = await bcrypt.hash(userInput.password, 10);
@@ -44,9 +59,8 @@ module.exports.postUser = async (event) => {
         chatId: undefined,
         createdAt: Math.floor(Date.now() / 1000)
     }
-    //validate
-    // user login uniqueness
 
+    // user login uniqueness
     let withSameLogin = await userRepo.getUser(user.login);
     if (withSameLogin.Count) {
         statusCode = 400;
@@ -63,14 +77,9 @@ module.exports.getOwnUser = async (event) => {
     let statusCode = 200;
     let userId = "";
     try {
-        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+        userId = getUserIdFromEvent(event);
     } catch (e) {
-        return response.getResponse(501, 'Access token is wrong');
-    }
-
-    if(!userId){
-        statusCode = 501;
-        return response.getResponse(statusCode, "There is no userId in token ");
+        return response.getResponse(e.code, e.message);
     }
 
     let users = await userRepo.getUser(null, userId);
@@ -81,14 +90,9 @@ module.exports.getAssets = async (event) => {
     let statusCode = 200;
     let userId = "";
     try {
-        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+        userId = getUserIdFromEvent(event);
     } catch (e) {
-        return response.getResponse(501, 'Access token is wrong');
-    }
-
-    if(!userId){
-        statusCode = 501;
-        return response.getResponse(statusCode, "There is no userId in token ");
+        return response.getResponse(e.code, e.message);
     }
 
     let assets = await userRepo.getAssets(userId);
@@ -100,19 +104,14 @@ module.exports.postAssets = async (event) => {
     let statusCode = 200;
     let userId = "";
     try {
-        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+        userId = getUserIdFromEvent(event);
     } catch (e) {
-        return response.getResponse(501, 'Access token is wrong');
+        return response.getResponse(e.code, e.message);
     }
 
-    if(!userId){
-        statusCode = 501;
-        return response.getResponse(statusCode, "There is no userId in token ");
-    }
-
-    if (!(assetInput.name || "").trim()) {
-        statusCode = 400;
-        return response.getResponse(statusCode, "Please, fill up the name of asset");
+    let nameNoValid = validator.isStringNoValid("name", assetInput.name, 1, 16, true);
+    if (nameNoValid) {
+        return response.getResponse(400, nameNoValid);
     }
 
     const asset = {
@@ -121,9 +120,8 @@ module.exports.postAssets = async (event) => {
         userId: userId,
         createdAt: Math.floor(Date.now() / 1000)
     }
-    //validate
-    // user exists
 
+    // user exists
     let user = await userRepo.getUser(null, asset.userId);
     if (!user.Count) {
         statusCode = 400;
@@ -137,18 +135,32 @@ module.exports.postAssets = async (event) => {
 module.exports.postCards = async (event) => {
     const cardInput = JSON.parse(event.body);
     let statusCode = 200;
+    let userId = "";
+    try {
+        userId = getUserIdFromEvent(event);
+    } catch (e) {
+        return response.getResponse(e.code, e.message);
+    }
 
     if (!(cardInput.assetId || "").trim()) {
         statusCode = 400;
         return response.getResponse(statusCode, "Please, fill up assetId");
     }
+    let descriptionNoValid = validator.isStringNoValid("description", cardInput.description, 0, 32,);
+    if (descriptionNoValid) {
+        return response.getResponse(400, descriptionNoValid);
+    }
 
-    //validate
     // asset exists
     let assetsResponse = await userRepo.getAsset(cardInput.assetId);
     if (!assetsResponse.Count) {
         statusCode = 400;
         return response.getResponse(statusCode, "There is no asset with id " + cardInput.assetId);
+    }
+
+    if (userId != assetsResponse.Items[0].userId) {
+        statusCode = 400;
+        return response.getResponse(statusCode, "Only for own asset the card can set");
     }
 
     const card = {
@@ -167,14 +179,9 @@ module.exports.getCards = async (event) => {
     let statusCode = 200;
     let userId = "";
     try {
-        userId = getUserIdFromToken(event.headers["Authorization"].split(" ")[1]);
+        userId = getUserIdFromEvent(event);
     } catch (e) {
-        return response.getResponse(501, 'Access token is wrong');
-    }
-
-    if(!userId){
-        statusCode = 501;
-        return response.getResponse(statusCode, "There is no userId in token ");
+        return response.getResponse(e.code, e.message);
     }
 
     let cards = await userRepo.getCards(userId);
@@ -182,6 +189,13 @@ module.exports.getCards = async (event) => {
 }
 
 module.exports.getCard = async (event) => {
+    let userId = "";
+    try {
+        userId = getUserIdFromEvent(event);
+    } catch (e) {
+        return response.getResponse(e.code, e.message);
+    }
+
     let statusCode = 200;
     let id = event.pathParameters.id;
 
@@ -202,7 +216,7 @@ module.exports.login = async (event) => {
     //validate
     let users = await userRepo.getUser(credentials.login);
 
-    if (!users.Count || ! await bcrypt.compare(credentials.password, users.Items[0].passwordHash)) {
+    if (!users.Count || !await bcrypt.compare(credentials.password, users.Items[0].passwordHash)) {
         statusCode = 501;
         return response.getResponse(statusCode, "Login or password are wrong, please, try another!");
     }
@@ -225,6 +239,25 @@ const getUser = async (userId) => {
     return user;
 }
 
+const getUserIdFromEvent = (e) => {
+    let userId = "";
+    try {
+        userId = getUserIdFromToken(e.headers["Authorization"].split(" ")[1]);
+    } catch (e) {
+        throw {
+            "code": 501,
+            "message": 'Access token is wrong'
+        };
+    }
+
+    if (!userId) {
+        throw {
+            "code": 501,
+            "message": "There is no userId in token "
+        };
+    }
+    return userId;
+}
 
 const getUserIdFromToken = (token) => {
     let verified = jwt.verify(token, tokenPrivateKey);

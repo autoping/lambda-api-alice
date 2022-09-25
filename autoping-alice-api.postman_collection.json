@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "31ca2647-07b5-412a-9cad-c166df53fda9",
-		"name": "autoping-alice-api",
+		"_postman_id": "aad9c0f9-a1ec-4bb2-be6c-b2064e6a2902",
+		"name": "autoping-alice-api Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "15569163"
 	},
@@ -27,7 +27,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"login\": \"alice@email.com\",\n    \"nickname\": \"Alice\",\n    \"password\": \"112345\"\n}",
+					"raw": "{\n    \"login\": \"Alice1@aping.com\",\n    \"nickname\": \"Alice\",\n    \"password\": \"112345\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -190,6 +190,16 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{_access_token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
 				"header": [],
 				"body": {
@@ -222,7 +232,7 @@
 					"script": {
 						"exec": [
 							"let id = pm.response.json().id;",
-							"pm.collectionVariables.set(\"_created_user_id\", id);"
+							""
 						],
 						"type": "text/javascript"
 					}
