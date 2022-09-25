@@ -96,19 +96,20 @@ module.exports.getCard = async function (id) {
 
 //todo check
 module.exports.getCards = async function (userId) {
-    let assets = await this.getAssets(userId);
-    console.log(assets)
-    let assetsIds = [];
-    for (let i = 0; i < assets.length; i++) {
-        assetsIds.push(assets[i].id);
-    }
+    // let assets = await this.getAssets(userId);
+    // console.log(assets)
+    // let assetsIds = [];
+    // for (let i = 0; i < assets.length; i++) {
+    //     assetsIds.push(assets[i].id);
+    // }
     let params = {};
-    console.log(assetsIds);
+    // console.log(assetsIds);
+    // console.log(JSON.stringify(assetsIds));
     params = {
         TableName: cardsTableName,
-        FilterExpression: " assetId IN ('bla')",
+        FilterExpression: " userId = :userId",
         ExpressionAttributeValues: {
-            ":assetIds": assetsIds
+            ":userId": userId
         }
     };
     let result = await docClient.scan(params).promise();

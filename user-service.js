@@ -6,6 +6,7 @@ const userRepo = require('./user-repo');
 const response = require('./response');
 
 const tokenPrivateKey = process.env.TOKEN_PRIVATE_KEY;
+console.log("tokenPrK",tokenPrivateKey)
 
 
 module.exports.getUsers = async (event) => {
@@ -142,18 +143,20 @@ module.exports.postCards = async (event) => {
         return response.getResponse(statusCode, "Please, fill up assetId");
     }
 
+    //validate
+    // asset exists
+    let assetsResponse = await userRepo.getAsset(cardInput.assetId);
+    if (!assetsResponse.Count) {
+        statusCode = 400;
+        return response.getResponse(statusCode, "There is no asset with id " + cardInput.assetId);
+    }
+
     const card = {
         id: uuid.v4(),
         assetId: cardInput.assetId,
+        userId: assetsResponse.Items[0].userId,
         description: cardInput.description,
         createdAt: Math.floor(Date.now() / 1000)
-    }
-    //validate
-    // asset exists
-    let asset = await userRepo.getAsset(card.assetId);
-    if (!asset.Count) {
-        statusCode = 400;
-        return response.getResponse(statusCode, "There is no asset with id " + card.assetId);
     }
 
     let created = await userRepo.putCard(card);
