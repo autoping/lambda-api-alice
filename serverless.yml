@@ -20,6 +20,14 @@ provider:
           Resource: "*"
 
 functions:
+  getQRCode:
+    handler: code-service.getQRCode
+    events:
+      - http:
+          path: qr-codes
+          method: post
+          cors: true
+
   postUser:
     handler: user-service.postUser
     events:
@@ -105,14 +113,6 @@ functions:
     events:
       - http:
           path: login
-          method: post
-          cors: true
-
-  getQRCode:
-    handler: code-service.getQRCode
-    events:
-      - http:
-          path: qr-codes
           method: post
           cors: true
 

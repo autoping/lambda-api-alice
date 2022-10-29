@@ -3,6 +3,7 @@
 const QRCode = require('qrcode')
 const sharp = require('sharp');
 
+
 module.exports.getQRCode = async (event) => {
 // let eb = event?event.body:'some text';
     const input = JSON.parse(event.body);
@@ -23,6 +24,7 @@ module.exports.getQRCode = async (event) => {
     // Buffer.from(nGenerated, 'utf-8'),
 
     //
+
     return{
         statusCode: 200,
         headers: {
