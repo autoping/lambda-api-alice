@@ -128,6 +128,13 @@ module.exports.postAssets = async (event) => {
         return response.getResponse(statusCode, "There is no user with id " + asset.userId);
     }
 
+    //n of assets <5
+    let existedAssets = await userRepo.getAssets(userId);
+    if(existedAssets.length>4){
+        statusCode = 400;
+        return response.getResponse(statusCode, "You can't create new asset as maximum number of assets is achieved!");
+    }
+
     let created = await userRepo.putAsset(asset);
     return response.getResponse(statusCode, created);
 }
@@ -185,6 +192,15 @@ module.exports.postCards = async (event) => {
         userId: assetsResponse.Items[0].userId,
         description: cardInput.description,
         createdAt: Math.floor(Date.now() / 1000)
+    }
+
+
+    //n of cards <5
+    let existedCards = await userRepo.getCards(userId, cardInput.assetId);
+    console.log(existedCards.Items.length)
+    if(existedCards.Items.length>4){
+        statusCode = 400;
+        return response.getResponse(statusCode, "You can't create new card as maximum number of cards is achieved!");
     }
 
     let created = await userRepo.putCard(card);
