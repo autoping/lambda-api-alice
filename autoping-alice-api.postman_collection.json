@@ -142,6 +142,46 @@
 					"listen": "test",
 					"script": {
 						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/assets/{{_created_asset_id}}",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"assets",
+						"{{_created_asset_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get assets",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
 							"let id = pm.response.json().id;",
 							""
 						],
@@ -259,6 +299,48 @@
 					"path": [
 						"dev",
 						"cards"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get public",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let id = pm.response.json().id;",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{_access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ALICE_URL}}/dev/cards/{{_created_card_id}}/public",
+					"host": [
+						"{{ALICE_URL}}"
+					],
+					"path": [
+						"dev",
+						"cards",
+						"{{_created_card_id}}",
+						"public"
 					]
 				}
 			},

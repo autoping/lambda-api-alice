@@ -252,6 +252,22 @@ module.exports.getCard = async (event) => {
     return response.getResponse(statusCode, cards.Items[0]);
 }
 
+module.exports.getPublicByCard = async (event) => {
+    let statusCode = 200;
+    let id = event.pathParameters.id;
+
+    let cards = await userRepo.getCard(id);
+    if (!cards.Items.length) {
+        return response.getResponse(404, "There is no card with id " + id);
+    }
+    let userId = cards.Items[0].userId;
+    let users = await userRepo.getUser(null, userId);
+    if (!users.Items.length) {
+        return response.getResponse(404, "Internal error");
+    }
+    return response.getResponse(statusCode, {nickname: users.Items[0].nickname});
+}
+
 module.exports.login = async (event) => {
     const credentials = JSON.parse(event.body);
     let statusCode = 200;
