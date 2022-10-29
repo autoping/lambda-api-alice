@@ -99,6 +99,24 @@ module.exports.getAssets = async (event) => {
     return response.getResponse(statusCode, assets);
 }
 
+module.exports.getAsset = async (event) => {
+    let userId = "";
+    try {
+        userId = getUserIdFromEvent(event);
+    } catch (e) {
+        return response.getResponse(e.code, e.message);
+    }
+
+    let statusCode = 200;
+    let id = event.pathParameters.id;
+
+    let asset = await userRepo.getAsset(id);
+    if (!asset.Items.length) {
+        return response.getResponse(400, "There is no such asset!");
+    }
+    return response.getResponse(statusCode, asset.Items[0]);
+}
+
 module.exports.postAssets = async (event) => {
     const assetInput = JSON.parse(event.body);
     let statusCode = 200;
@@ -130,7 +148,7 @@ module.exports.postAssets = async (event) => {
 
     //n of assets <5
     let existedAssets = await userRepo.getAssets(userId);
-    if(existedAssets.length>4){
+    if (existedAssets.length > 4) {
         statusCode = 400;
         return response.getResponse(statusCode, "You can't create new asset as maximum number of assets is achieved!");
     }
@@ -150,8 +168,8 @@ module.exports.getCardsOfAsset = async (event) => {
     let statusCode = 200;
     let id = event.pathParameters.id;
 
-    let cards = await userRepo.getCards(userId,id);
-    console.log(cards,userId,id)
+    let cards = await userRepo.getCards(userId, id);
+
     return response.getResponse(statusCode, cards.Items);
 }
 
@@ -197,7 +215,7 @@ module.exports.postCards = async (event) => {
 
     //n of cards <5
     let existedCards = await userRepo.getCards(userId, cardInput.assetId);
-    if(existedCards.Items.length>4){
+    if (existedCards.Items.length > 4) {
         statusCode = 400;
         return response.getResponse(statusCode, "You can't create new card as maximum number of cards is achieved!");
     }
