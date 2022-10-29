@@ -96,6 +96,7 @@ module.exports.getAssets = async (event) => {
     }
 
     let assets = await userRepo.getAssets(userId);
+    assets = assets.sort(sortByCreatedAt);
     return response.getResponse(statusCode, assets);
 }
 
@@ -170,7 +171,8 @@ module.exports.getCardsOfAsset = async (event) => {
 
     let cards = await userRepo.getCards(userId, id);
 
-    return response.getResponse(statusCode, cards.Items);
+    let cardsOfAsset = cards.Items.sort(sortByCreatedAt)
+    return response.getResponse(statusCode,);
 }
 
 module.exports.postCards = async (event) => {
@@ -234,6 +236,7 @@ module.exports.getCards = async (event) => {
     }
 
     let cards = await userRepo.getCards(userId);
+    cards = cards.Items.sort(sortByCreatedAt);
     return response.getResponse(statusCode, cards);
 }
 
@@ -328,6 +331,11 @@ const getUserIdFromToken = (token) => {
     let verified = jwt.verify(token, tokenPrivateKey);
     return verified.id;
 }
+
+const sortByCreatedAt = (a, b) => {
+    return a.createdAt < b.createdAt ? -1 : 1;
+}
+
 
 
 
