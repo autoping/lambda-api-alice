@@ -27,7 +27,9 @@ module.exports.getQRCode = async (event) => {
         statusCode: 200,
         headers: {
             'content-type': 'image/png',
-            'Access-Control-Allow-Origin': '*'
+            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "*"
         },
         body: generatedQR,
         isBase64Encoded: true
