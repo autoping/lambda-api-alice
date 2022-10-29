@@ -197,7 +197,6 @@ module.exports.postCards = async (event) => {
 
     //n of cards <5
     let existedCards = await userRepo.getCards(userId, cardInput.assetId);
-    console.log(existedCards.Items.length)
     if(existedCards.Items.length>4){
         statusCode = 400;
         return response.getResponse(statusCode, "You can't create new card as maximum number of cards is achieved!");
