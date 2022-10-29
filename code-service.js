@@ -4,35 +4,36 @@ const QRCode = require('qrcode')
 const sharp = require('sharp');
 
 module.exports.getQRCode = async (event) => {
-let eb = event?event.body:'some text';
-    const input = JSON.parse(eb);
+// let eb = event?event.body:'some text';
+    const input = JSON.parse(event.body);
+    console.log(input)
     const url = input.url;
 
     let generatedQR = await generateQR(url);
     let nGenerated = await sharp('let_me.png')
         .composite([{input: generatedQR, gravity: 'centre'}])
         .toBuffer();
-    // console.log("generatedqr:", nGenerated);
-    return{
-        'headers': { 'Content-Type': 'image/png' },
-        'statusCode': 200,
-        'body': 'bla',
-        'isBase64Encoded': true
-    };
-    //Buffer.from(nGenerated, 'utf-8'),
-
-    //
-    // {
-    //     statusCode: 200,
-    //     headers: {
-    //         'Access-Control-Allow-Origin': '*'
-    //
-    //     },
-    //     body: nGenerated,
-    //     isBase64Encoded: true
+    console.log("generatedqr:", nGenerated);
+    // return{
+    //     'headers': { 'Content-Type': 'image/png' },
+    //     'statusCode': 200,
+    //     'body': 'bla',
+    //     'isBase64Encoded': true
     // };
+    // Buffer.from(nGenerated, 'utf-8'),
 
-//// 'content-type': 'image/png'
+    //
+    return{
+        statusCode: 200,
+        headers: {
+            'content-type': 'image/png',
+            'Access-Control-Allow-Origin': '*'
+        },
+        body: nGenerated,
+        isBase64Encoded: true
+    };
+
+////
 };
 
 const generateQR = async text => {
