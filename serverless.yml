@@ -52,6 +52,14 @@ functions:
           method: get
           cors: true
 
+  getCardsOfAsset:
+    handler: user-service.getCardsOfAsset
+    events:
+      - http:
+          path: assets/{id}/cards
+          method: get
+          cors: true
+
   postCards:
     handler: user-service.postCards
     events:

@@ -132,6 +132,22 @@ module.exports.postAssets = async (event) => {
     return response.getResponse(statusCode, created);
 }
 
+module.exports.getCardsOfAsset = async (event) => {
+    let userId = "";
+    try {
+        userId = getUserIdFromEvent(event);
+    } catch (e) {
+        return response.getResponse(e.code, e.message);
+    }
+
+    let statusCode = 200;
+    let id = event.pathParameters.id;
+
+    let cards = await userRepo.getCards(userId,id);
+    console.log(cards,userId,id)
+    return response.getResponse(statusCode, cards.Items);
+}
+
 module.exports.postCards = async (event) => {
     const cardInput = JSON.parse(event.body);
     let statusCode = 200;

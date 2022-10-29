@@ -95,18 +95,29 @@ module.exports.getCard = async function (id) {
 }
 
 //todo check
-module.exports.getCards = async function (userId) {
+module.exports.getCards = async function (userId, assetId) {
     let params = {};
-    params = {
-        TableName: cardsTableName,
-        FilterExpression: " userId = :userId",
-        ExpressionAttributeValues: {
-            ":userId": userId
-        }
-    };
-    let result = await docClient.scan(params).promise();
-    return result.Items;
+    if (assetId) {
+        params = {
+            TableName: cardsTableName,
+            FilterExpression: " userId = :userId AND assetId = :assetId",
+            ExpressionAttributeValues: {
+                ":userId": userId,
+                ":assetId": assetId
+            }
+        };
+    } else {
+        params = {
+            TableName: cardsTableName,
+            FilterExpression: " userId = :userId",
+            ExpressionAttributeValues: {
+                ":userId": userId
+            }
+        };
+    }
+    return  await docClient.scan(params).promise();
 };
+
 
 module.exports.getUser = async function (login, id) {
     let params = {};
