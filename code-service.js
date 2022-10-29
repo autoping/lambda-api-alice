@@ -29,7 +29,7 @@ module.exports.getQRCode = async (event) => {
             'content-type': 'image/png',
             'Access-Control-Allow-Origin': '*'
         },
-        body: nGenerated,
+        body: generatedQR,
         isBase64Encoded: true
     };
 
