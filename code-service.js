@@ -6,9 +6,9 @@ const sharp = require('sharp');
 
 module.exports.getQRCode = async (event) => {
 // let eb = event?event.body:'some text';
-    const input = JSON.parse(event.body);
-    console.log(input)
-    const url = input.url;
+//     const input = JSON.parse(event.body);
+//     console.log(input)
+    const url = "Kjsdsskdskdslkd"||input.url;
 
     let generatedQR = await generateQR(url);
     let nGenerated = await sharp('let_me.png')
