@@ -172,7 +172,7 @@ module.exports.getCardsOfAsset = async (event) => {
     let cards = await userRepo.getCards(userId, id);
 
     let cardsOfAsset = cards.Items.sort(sortByCreatedAt)
-    return response.getResponse(statusCode,);
+    return response.getResponse(statusCode,cardsOfAsset);
 }
 
 module.exports.postCards = async (event) => {
