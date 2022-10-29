@@ -125,7 +125,7 @@ custom:
   secret: ${ssm:/aws/reference/secretsmanager/dev/autoping/apialice}
   apigwBinary:
     types:
-      - "*/*"
+      - '*/*'
   dynamodb:
     # If you only want to use DynamoDB Local in some stages, declare them here
     stages:
