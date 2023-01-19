@@ -296,6 +296,30 @@ module.exports.login = async (event) => {
     return response.getResponse(statusCode, jwt_res);
 }
 
+module.exports.forgotPassword = async (event) => {
+    const body = JSON.parse(event.body);
+    let statusCode = 200;
+    const successResponse = "Link to recover password was sent on email";
+
+    if (!(body.email || "").trim()) {
+        statusCode = 501;
+        return response.getResponse(statusCode, "Please, provide email");
+    }
+
+    //validate
+    let users = await userRepo.getUser(body.email);
+
+    if (!users.Count ){
+        //there is no such an email, return success
+        return response.getResponse(statusCode, successResponse);
+    }
+
+    //create temp link
+
+    //send temp link
+
+}
+
 
 //todo
 const getUser = async (userId) => {

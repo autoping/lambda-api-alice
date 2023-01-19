@@ -5,6 +5,7 @@ const AWS = require("aws-sdk");
 const usersTableName = "autoping-users";
 const assetsTableName = "autoping-assets";
 const cardsTableName = "autoping-cards";
+const tokensTableName = "autoping-tokens";
 
 // //to use for local and prod
 const dynamodb = require('serverless-dynamodb-client');
@@ -163,3 +164,13 @@ module.exports.getUserByPhone = async function (phone) {
     }
     return await docClient.scan(params).promise();
 }
+
+module.exports.putRecoveryToken = async function (token) {
+    let params = {
+        TableName: tokensTableName,
+        Item: token
+    };
+    let result = await docClient.put(params).promise();
+    let created = await this.getUser(null, user.id);
+    return created.Items[0];
+};
