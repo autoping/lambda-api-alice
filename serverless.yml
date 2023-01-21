@@ -124,6 +124,14 @@ functions:
           method: post
           cors: true
 
+  recoverPassword:
+    handler: user-service.recoverPassword
+    events:
+      - http:
+          path: recover-password
+          method: post
+          cors: true
+
 
 plugins:
   - serverless-dynamodb-local

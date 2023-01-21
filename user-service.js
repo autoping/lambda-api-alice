@@ -2,6 +2,7 @@
 const uuid = require("uuid");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
+const sendmail = require('sendmail')();
 const userRepo = require('./user-repo');
 const validator = require('./validator');
 const response = require('./response');
@@ -315,8 +316,30 @@ module.exports.forgotPassword = async (event) => {
     }
 
     //create temp link
+    let token = userRepo.putRecoveryToken({
+        id: uuid.v4(),
+        createdAt: Math.floor(Date.now() / 1000)
+    });
 
+    console.log(token);
     //send temp link
+    //todo addresses
+    sendmail({
+        from: 'no-reply@aping.com',
+        to: 'lbq@mail.ru, lbq@yandex.ru',
+        subject: 'test sendmail',
+        html: 'Mail of test sendmail ' + JSON.stringify(token)
+      }, function(err, reply) {
+        console.log(err && err.stack);
+        console.dir(reply);
+    });
+
+
+}
+
+module.exports.recoverPassword = async (event) => {
+    const body = JSON.parse(event.body);
+
 
 }
 
