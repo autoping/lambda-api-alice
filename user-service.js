@@ -173,7 +173,7 @@ module.exports.getCardsOfAsset = async (event) => {
     let cards = await userRepo.getCards(userId, id);
 
     let cardsOfAsset = cards.Items.sort(sortByCreatedAt)
-    return response.getResponse(statusCode,cardsOfAsset);
+    return response.getResponse(statusCode, cardsOfAsset);
 }
 
 module.exports.postCards = async (event) => {
@@ -269,7 +269,7 @@ module.exports.getPublicByCard = async (event) => {
     if (!users.Items.length) {
         return response.getResponse(404, "Internal error");
     }
-    return response.getResponse(statusCode, {nickname: users.Items[0].nickname});
+    return response.getResponse(statusCode, { nickname: users.Items[0].nickname });
 }
 
 module.exports.login = async (event) => {
@@ -308,39 +308,72 @@ module.exports.forgotPassword = async (event) => {
     }
 
     //validate
-    let users = await userRepo.getUser(body.email);
+    let user = await userRepo.getUser(body.email);
 
-    if (!users.Count ){
+    if (!user.Count) {
         //there is no such an email, return success
         return response.getResponse(statusCode, successResponse);
     }
+    //todo check there is no other link
 
     //create temp link
-    let token = userRepo.putRecoveryToken({
+    let token = await userRepo.putRecoveryToken({
         id: uuid.v4(),
         createdAt: Math.floor(Date.now() / 1000)
     });
 
-    console.log(token);
     //send temp link
-    //todo addresses
+    //todo url of front
+    let urlToResetPassword = "https://pinqr.link/#/reset-password?token="
     sendmail({
         from: 'no-reply@aping.com',
-        to: 'lbq@mail.ru, lbq@yandex.ru',
+        to: body.email,
         subject: 'test sendmail',
-        html: 'Mail of test sendmail ' + JSON.stringify(token)
-      }, function(err, reply) {
+        html: 'Mail of test sendmail ' + urlToResetPassword+token.id
+    }, function (err, reply) {
         console.log(err && err.stack);
         console.dir(reply);
     });
 
+    return response.getResponse(statusCode, successResponse);
 
 }
 
 module.exports.recoverPassword = async (event) => {
     const body = JSON.parse(event.body);
 
+    //check token
 
+    //get user by token
+    let user;
+    //validate password
+    let passwordNoValid = validator.isStringNoValid("password", body.password, 1, 18, true);
+    if (passwordNoValid) {
+        return response.getResponse(400, passwordNoValid);
+    }
+
+    let passwordRepeatNoValid = validator.isStringNoValid("passwordRepeat", body.passwordRepeat, 1, 18, true);
+    if (passwordRepeatNoValid) {
+        return response.getResponse(400, passwordNoValid);
+    }
+    if (body.password != body.passwordRepeat) {
+        return response.getResponse(400, "repeated password should be the same!");
+    }
+
+    //change password
+
+    let pHash = await bcrypt.hash(body.password, 10);
+    const userUpdated = {
+        id: user.id,
+        login: user.login,
+        passwordHash: pHash,
+        nickname: user.nickname,
+        chatId: user.chatId,
+        createdAt: user.createdAt
+    }
+
+    let updated = await userRepo.putUser(user);
+    return updated;
 }
 
 

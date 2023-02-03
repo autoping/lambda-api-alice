@@ -170,7 +170,7 @@ module.exports.putRecoveryToken = async function (token) {
         TableName: tokensTableName,
         Item: token
     };
-    let result = await docClient.put(params).promise();
+    await docClient.put(params).promise();
 
-    return result;
+    return token;
 };
