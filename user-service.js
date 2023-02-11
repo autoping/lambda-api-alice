@@ -319,6 +319,7 @@ module.exports.forgotPassword = async (event) => {
     //create temp link
     let token = await userRepo.putRecoveryToken({
         id: uuid.v4(),
+        userId: user.id,
         createdAt: Math.floor(Date.now() / 1000)
     });
 
@@ -343,8 +344,13 @@ module.exports.recoverPassword = async (event) => {
     const body = JSON.parse(event.body);
 
     //check token
+    let tokenResponse = await userRepo.getRecoverTokenById(body.token);
+    console.log("token response",JSON.stringify(tokenResponse))
+    if(!tokenResponse || !tokenResponse.Count){
+        return response.getResponse(403, "Password recovering failed. Wrong token");
+    }
 
-    //get user by token
+    //get user by email
     let user;
     //validate password
     let passwordNoValid = validator.isStringNoValid("password", body.password, 1, 18, true);
@@ -357,7 +363,7 @@ module.exports.recoverPassword = async (event) => {
         return response.getResponse(400, passwordNoValid);
     }
     if (body.password != body.passwordRepeat) {
-        return response.getResponse(400, "repeated password should be the same!");
+        return response.getResponse(400, "Repeated password should be the same!");
     }
 
     //change password
@@ -371,6 +377,9 @@ module.exports.recoverPassword = async (event) => {
         chatId: user.chatId,
         createdAt: user.createdAt
     }
+
+    //delete link
+    userRepo.deleteRecoverTokenById(body.token)
 
     let updated = await userRepo.putUser(user);
     return updated;

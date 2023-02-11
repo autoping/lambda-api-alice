@@ -170,7 +170,46 @@ module.exports.putRecoveryToken = async function (token) {
         TableName: tokensTableName,
         Item: token
     };
-    await docClient.put(params).promise();
+    docClient.put(params);
 
     return token;
 };
+
+module.exports.getRecoverTokenById = async function (tokenId) {
+    let params = {
+        TableName: tokensTableName,
+        FilterExpression: "id = :id ",
+        ExpressionAttributeValues: {
+            ":id": tokenId
+        }
+    };
+
+    return docClient.scan(params).promise();
+};
+
+module.exports.getRecoverTokenByUserId = async function (userId) {
+    let params = {
+        TableName: tokensTableName,
+        FilterExpression: "userId = :userId ",
+        ExpressionAttributeValues: {
+            ":userId": userId
+        }
+    };
+
+    
+
+    return docClient.scan(params).promise();
+};
+
+module.exports.deleteRecoverTokenById = async function (id) {
+    let params = {
+        TableName: tokensTableName,
+        FilterExpression: "id = :id ",
+        ExpressionAttributeValues: {
+            ":id": id
+        }
+    };
+
+    return docClient.deleteItem(params).promise();
+};
+
