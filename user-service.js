@@ -278,7 +278,7 @@ module.exports.login = async (event) => {
 
     if (!(credentials.login || "").trim()
         || !(credentials.password || "").trim()) {
-        statusCode = 501;
+        statusCode = 401;
         return response.getResponse(statusCode, "Please, provide login and password");
     }
 
@@ -286,7 +286,7 @@ module.exports.login = async (event) => {
     let users = await userRepo.getUser(credentials.login);
 
     if (!users.Count || !await bcrypt.compare(credentials.password, users.Items[0].passwordHash)) {
-        statusCode = 501;
+        statusCode = 401;
         return response.getResponse(statusCode, "Login or password are wrong, please, try another!");
     }
 
@@ -303,14 +303,14 @@ module.exports.forgotPassword = async (event) => {
     const successResponse = "Link to recover password was sent on email";
 
     if (!(body.email || "").trim()) {
-        statusCode = 501;
+        statusCode = 401;
         return response.getResponse(statusCode, "Please, provide email");
     }
 
     //validate
-    let user = await userRepo.getUser(body.email);
+    let users = await userRepo.getUser(body.email);
 
-    if (!user.Count) {
+    if (!users.Count) {
         //there is no such an email, return success
         return response.getResponse(statusCode, successResponse);
     }
@@ -319,9 +319,11 @@ module.exports.forgotPassword = async (event) => {
     //create temp link
     let token = await userRepo.putRecoveryToken({
         id: uuid.v4(),
-        userId: user.id,
+        userId: users.Items[0].id,
         createdAt: Math.floor(Date.now() / 1000)
     });
+
+    console.log('token',token);
 
     //send temp link
     //todo url of front
@@ -344,30 +346,31 @@ module.exports.recoverPassword = async (event) => {
     const body = JSON.parse(event.body);
 
     //check token
+    console.log(body);
+    console.log("token is ",body.token);
     let tokenResponse = await userRepo.getRecoverTokenById(body.token);
     console.log("token response",JSON.stringify(tokenResponse))
     if(!tokenResponse || !tokenResponse.Count){
         return response.getResponse(403, "Password recovering failed. Wrong token");
     }
 
-    //get user by email
-    let user;
+    //get user by id
+    let user = getUser(tokenResponse.Items[0].userId);
     //validate password
     let passwordNoValid = validator.isStringNoValid("password", body.password, 1, 18, true);
     if (passwordNoValid) {
-        return response.getResponse(400, passwordNoValid);
+        return response.getResponse(400, "password is not correct");
     }
 
     let passwordRepeatNoValid = validator.isStringNoValid("passwordRepeat", body.passwordRepeat, 1, 18, true);
     if (passwordRepeatNoValid) {
-        return response.getResponse(400, passwordNoValid);
+        return response.getResponse(400, "repeat password is not correct");
     }
     if (body.password != body.passwordRepeat) {
         return response.getResponse(400, "Repeated password should be the same!");
     }
 
     //change password
-
     let pHash = await bcrypt.hash(body.password, 10);
     const userUpdated = {
         id: user.id,
@@ -378,17 +381,19 @@ module.exports.recoverPassword = async (event) => {
         createdAt: user.createdAt
     }
 
+
+
+    let updated = await userRepo.putUser(userUpdated);
+
     //delete link
     userRepo.deleteRecoverTokenById(body.token)
-
-    let updated = await userRepo.putUser(user);
     return updated;
 }
 
 
 //todo
 const getUser = async (userId) => {
-    let result = await userRepo.getUser(null, id);
+    let result = await userRepo.getUser(null, userId);
     if (!result.Count) {
         return response.getResponse(400, 'There is no user with such an id');
     }

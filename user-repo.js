@@ -170,7 +170,7 @@ module.exports.putRecoveryToken = async function (token) {
         TableName: tokensTableName,
         Item: token
     };
-    docClient.put(params);
+    let result = docClient.put(params).promise();
 
     return token;
 };
@@ -195,8 +195,6 @@ module.exports.getRecoverTokenByUserId = async function (userId) {
             ":userId": userId
         }
     };
-
-    
 
     return docClient.scan(params).promise();
 };
