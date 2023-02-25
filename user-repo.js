@@ -37,6 +37,20 @@ module.exports.putUser = async function (user) {
     return created.Items[0];
 };
 
+module.exports.updatePassword = async function (userId, pHash) {
+    let params = {
+        TableName: usersTableName,
+        Key: {
+            id: userId
+        },
+        UpdateExpression: " SET passwordHash = :pHash ",
+        ExpressionAttributeValues: {
+            ":pHash": pHash
+        }
+    };
+    let result = await docClient.update(params).promise();
+};
+
 module.exports.putAsset = async function (asset) {
     let params = {
         TableName: assetsTableName,

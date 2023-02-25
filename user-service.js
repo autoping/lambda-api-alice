@@ -362,28 +362,19 @@ module.exports.recoverPassword = async (event) => {
         return response.getResponse(400, "password is not correct");
     }
 
-    let passwordRepeatNoValid = validator.isStringNoValid("passwordRepeat", body.passwordRepeat, 1, 18, true);
+    let passwordRepeatNoValid = validator.isStringNoValid("passwordRepeat", body.password_repeat, 1, 18, true);
     if (passwordRepeatNoValid) {
         return response.getResponse(400, "repeat password is not correct");
     }
-    if (body.password != body.passwordRepeat) {
+    if (body.password != body.password_repeat) {
         return response.getResponse(400, "Repeated password should be the same!");
     }
 
     //change password
     let pHash = await bcrypt.hash(body.password, 10);
-    const userUpdated = {
-        id: user.id,
-        login: user.login,
-        passwordHash: pHash,
-        nickname: user.nickname,
-        chatId: user.chatId,
-        createdAt: user.createdAt
-    }
 
-
-
-    let updated = await userRepo.putUser(userUpdated);
+    let result = await userRepo.updatePassword(user.id, pHash);
+    console.log('updated result ', result);
 
     //delete link
     userRepo.deleteRecoverTokenById(body.token)
