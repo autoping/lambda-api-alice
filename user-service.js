@@ -2,6 +2,7 @@
 const uuid = require("uuid");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken')
+const sendmail = require('sendmail')();
 const userRepo = require('./user-repo');
 const validator = require('./validator');
 const response = require('./response');
@@ -172,7 +173,7 @@ module.exports.getCardsOfAsset = async (event) => {
     let cards = await userRepo.getCards(userId, id);
 
     let cardsOfAsset = cards.Items.sort(sortByCreatedAt)
-    return response.getResponse(statusCode,cardsOfAsset);
+    return response.getResponse(statusCode, cardsOfAsset);
 }
 
 module.exports.postCards = async (event) => {
@@ -268,7 +269,7 @@ module.exports.getPublicByCard = async (event) => {
     if (!users.Items.length) {
         return response.getResponse(404, "Internal error");
     }
-    return response.getResponse(statusCode, {nickname: users.Items[0].nickname});
+    return response.getResponse(statusCode, { nickname: users.Items[0].nickname });
 }
 
 module.exports.login = async (event) => {
@@ -277,7 +278,7 @@ module.exports.login = async (event) => {
 
     if (!(credentials.login || "").trim()
         || !(credentials.password || "").trim()) {
-        statusCode = 501;
+        statusCode = 401;
         return response.getResponse(statusCode, "Please, provide login and password");
     }
 
@@ -285,7 +286,7 @@ module.exports.login = async (event) => {
     let users = await userRepo.getUser(credentials.login);
 
     if (!users.Count || !await bcrypt.compare(credentials.password, users.Items[0].passwordHash)) {
-        statusCode = 501;
+        statusCode = 401;
         return response.getResponse(statusCode, "Login or password are wrong, please, try another!");
     }
 
@@ -296,10 +297,101 @@ module.exports.login = async (event) => {
     return response.getResponse(statusCode, jwt_res);
 }
 
+module.exports.forgotPassword = async (event) => {
+    const body = JSON.parse(event.body);
+    let statusCode = 200;
+    const successResponse = "Link to recover password was sent on email";
+
+    if (!(body.email || "").trim()) {
+        statusCode = 401;
+        return response.getResponse(statusCode, "Please, provide email");
+    }
+
+    //validate
+    let users = await userRepo.getUser(body.email);
+
+    if (!users.Count) {
+        //there is no such an email, return success
+        return response.getResponse(statusCode, successResponse);
+    }
+    //todo check there is no other link
+
+    //create temp link
+    let token = await userRepo.putRecoveryToken({
+        id: uuid.v4(),
+        userId: users.Items[0].id,
+        createdAt: Math.floor(Date.now() / 1000)
+    });
+
+    console.log('token',token);
+
+    //send temp link
+    //todo url of front
+    let urlToResetPassword = "https://pinqr.link/#/reset-password?token="
+    sendmail({
+        from: 'no-reply@aping.com',
+        to: body.email,
+        subject: 'test sendmail',
+        html: 'To recover your password, please go by the link ' + urlToResetPassword+token.id
+    }, function (err, reply) {
+        console.log(err && err.stack);
+        console.dir(reply);
+    });
+
+    return response.getResponse(statusCode, successResponse);
+
+}
+
+module.exports.recoverPassword = async (event) => {
+    const body = JSON.parse(event.body);
+
+    //check token
+    console.log(body);
+    console.log("token is ",body.token);
+
+    let tokenResponse = await userRepo.getRecoverTokenById(body.token);
+    console.log("token response",JSON.stringify(tokenResponse))
+    if(!tokenResponse || !tokenResponse.Count){
+        return response.getResponse(403, "Password recovering failed. Wrong token");
+    }
+
+    let users = await userRepo.getUser(null, tokenResponse.Items[0].userId);
+    if (!users.Count) {
+        return response.getResponse(400, "There is no user with id " + tokenResponse.Items[0].userId);
+    }
+    let user = users.Items[0];
+    console.log(user)
+
+
+    //validate password
+    let passwordNoValid = validator.isStringNoValid("password", body.password, 1, 18, true);
+    if (passwordNoValid) {
+        return response.getResponse(400, "password is not correct");
+    }
+
+    let passwordRepeatNoValid = validator.isStringNoValid("passwordRepeat", body.password_repeat, 1, 18, true);
+    if (passwordRepeatNoValid) {
+        return response.getResponse(400, "repeat password is not correct");
+    }
+    if (body.password != body.password_repeat) {
+        return response.getResponse(400, "Repeated password should be the same!");
+    }
+
+    //change password
+    let pHash = await bcrypt.hash(body.password, 10);
+
+    let result = await userRepo.updatePassword(user.id, pHash);
+    console.log('updated result ', result);
+
+    //delete link
+    userRepo.deleteRecoverTokenById(body.token)
+    return response.getResponse(200, "Ok");
+}
+
 
 //todo
 const getUser = async (userId) => {
-    let result = await userRepo.getUser(null, id);
+    let result = await userRepo.getUser(null, userId);
     if (!result.Count) {
         return response.getResponse(400, 'There is no user with such an id');
     }

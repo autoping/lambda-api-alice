@@ -5,6 +5,7 @@ const AWS = require("aws-sdk");
 const usersTableName = "autoping-users";
 const assetsTableName = "autoping-assets";
 const cardsTableName = "autoping-cards";
+const tokensTableName = "autoping-tokens";
 
 // //to use for local and prod
 const dynamodb = require('serverless-dynamodb-client');
@@ -34,6 +35,20 @@ module.exports.putUser = async function (user) {
     let result = await docClient.put(params).promise();
     let created = await this.getUser(null, user.id);
     return created.Items[0];
+};
+
+module.exports.updatePassword = async function (userId, pHash) {
+    let params = {
+        TableName: usersTableName,
+        Key: {
+            id: userId
+        },
+        UpdateExpression: " SET passwordHash = :pHash ",
+        ExpressionAttributeValues: {
+            ":pHash": pHash
+        }
+    };
+    let result = await docClient.update(params).promise();
 };
 
 module.exports.putAsset = async function (asset) {
@@ -163,3 +178,49 @@ module.exports.getUserByPhone = async function (phone) {
     }
     return await docClient.scan(params).promise();
 }
+
+module.exports.putRecoveryToken = async function (token) {
+    let params = {
+        TableName: tokensTableName,
+        Item: token
+    };
+    let result = docClient.put(params).promise();
+
+    return token;
+};
+
+module.exports.getRecoverTokenById = async function (tokenId) {
+    let params = {
+        TableName: tokensTableName,
+        FilterExpression: "id = :id ",
+        ExpressionAttributeValues: {
+            ":id": tokenId
+        }
+    };
+
+    return docClient.scan(params).promise();
+};
+
+module.exports.getRecoverTokenByUserId = async function (userId) {
+    let params = {
+        TableName: tokensTableName,
+        FilterExpression: "userId = :userId ",
+        ExpressionAttributeValues: {
+            ":userId": userId
+        }
+    };
+
+    return docClient.scan(params).promise();
+};
+
+module.exports.deleteRecoverTokenById = async function (id) {
+    let params = {
+        TableName: tokensTableName,
+        Key: {
+            'id': id
+          }
+    };
+
+    return docClient.delete(params).promise();
+};
+

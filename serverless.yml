@@ -115,6 +115,22 @@ functions:
           path: login
           method: post
           cors: true
+  
+  forgotPassword:
+    handler: user-service.forgotPassword
+    events:
+      - http:
+          path: forgot-password
+          method: post
+          cors: true
+
+  recoverPassword:
+    handler: user-service.recoverPassword
+    events:
+      - http:
+          path: recover-password
+          method: post
+          cors: true
 
 
 plugins:
@@ -172,6 +188,19 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         TableName: autoping-cards
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    tokens:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: autoping-tokens
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
