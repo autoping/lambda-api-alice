@@ -332,7 +332,7 @@ module.exports.forgotPassword = async (event) => {
         from: 'no-reply@aping.com',
         to: body.email,
         subject: 'test sendmail',
-        html: 'Mail of test sendmail ' + urlToResetPassword+token.id
+        html: 'To recover your password, please go by the link ' + urlToResetPassword+token.id
     }, function (err, reply) {
         console.log(err && err.stack);
         console.dir(reply);
@@ -348,14 +348,21 @@ module.exports.recoverPassword = async (event) => {
     //check token
     console.log(body);
     console.log("token is ",body.token);
+
     let tokenResponse = await userRepo.getRecoverTokenById(body.token);
     console.log("token response",JSON.stringify(tokenResponse))
     if(!tokenResponse || !tokenResponse.Count){
         return response.getResponse(403, "Password recovering failed. Wrong token");
     }
 
-    //get user by id
-    let user = getUser(tokenResponse.Items[0].userId);
+    let users = await userRepo.getUser(null, tokenResponse.Items[0].userId);
+    if (!users.Count) {
+        return response.getResponse(400, "There is no user with id " + tokenResponse.Items[0].userId);
+    }
+    let user = users.Items[0];
+    console.log(user)
+
+
     //validate password
     let passwordNoValid = validator.isStringNoValid("password", body.password, 1, 18, true);
     if (passwordNoValid) {
@@ -378,7 +385,7 @@ module.exports.recoverPassword = async (event) => {
 
     //delete link
     userRepo.deleteRecoverTokenById(body.token)
-    return updated;
+    return response.getResponse(200, "Ok");
 }
 
 

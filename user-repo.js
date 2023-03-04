@@ -8,16 +8,16 @@ const cardsTableName = "autoping-cards";
 const tokensTableName = "autoping-tokens";
 
 // //to use for local and prod
-// const dynamodb = require('serverless-dynamodb-client');
-// const docClient = dynamodb.doc;
+const dynamodb = require('serverless-dynamodb-client');
+const docClient = dynamodb.doc;
 
 // temp for local rn
-const docClient = new AWS.DynamoDB.DocumentClient({
-    region: 'localhost',
-    endpoint: 'http://localhost:8000',
-    accessKeyId: 'DEFAULT_ACCESS_KEY',  // needed if you don't have aws credentials at all in env
-    secretAccessKey: 'DEFAULT_SECRET' // needed if you don't have aws credentials at all in env
-});
+// const docClient = new AWS.DynamoDB.DocumentClient({
+//     region: 'localhost',
+//     endpoint: 'http://localhost:8000',
+//     accessKeyId: 'DEFAULT_ACCESS_KEY',  // needed if you don't have aws credentials at all in env
+//     secretAccessKey: 'DEFAULT_SECRET' // needed if you don't have aws credentials at all in env
+// });
 
 
 module.exports.getUsers = async function () {
@@ -216,12 +216,11 @@ module.exports.getRecoverTokenByUserId = async function (userId) {
 module.exports.deleteRecoverTokenById = async function (id) {
     let params = {
         TableName: tokensTableName,
-        FilterExpression: "id = :id ",
-        ExpressionAttributeValues: {
-            ":id": id
-        }
+        Key: {
+            'id': id
+          }
     };
 
-    return docClient.deleteItem(params).promise();
+    return docClient.delete(params).promise();
 };
 
