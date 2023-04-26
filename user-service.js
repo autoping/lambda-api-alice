@@ -329,7 +329,7 @@ module.exports.forgotPassword = async (event) => {
     //todo url of front
     let urlToResetPassword = "https://pinqr.link/#/reset-password?token="
     sendmail({
-        from: 'no-reply@aping.com',
+        from: 'info@pinqr.link',
         to: body.email,
         subject: 'test sendmail',
         html: 'To recover your password, please go by the link ' + urlToResetPassword+token.id
