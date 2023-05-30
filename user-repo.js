@@ -61,6 +61,17 @@ module.exports.putAsset = async function (asset) {
     return created.Items[0];
 };
 
+module.exports.deleteAssetById = async function (id) {
+    let params = {
+        TableName: assetsTableName,
+        Key: {
+            'id': id
+          }
+    };
+
+    return docClient.delete(params).promise();
+};
+
 module.exports.getAssets = async function (userId) {
     let params = {};
     params = {
@@ -95,6 +106,17 @@ module.exports.putCard = async function (card) {
     let result = await docClient.put(params).promise();
     let created = await this.getCard(card.id);
     return created.Items[0];
+};
+
+module.exports.deleteCardById = async function (id) {
+    let params = {
+        TableName: cardsTableName,
+        Key: {
+            'id': id
+          }
+    };
+
+    return docClient.delete(params).promise();
 };
 
 module.exports.getCard = async function (id) {

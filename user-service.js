@@ -7,6 +7,9 @@ const userRepo = require('./user-repo');
 const validator = require('./validator');
 const response = require('./response');
 
+var aws = require("aws-sdk");
+var ses = new aws.SES({ region: "eu-central-1" });
+
 const tokenPrivateKey = process.env.TOKEN_PRIVATE_KEY;
 
 
@@ -159,6 +162,34 @@ module.exports.postAssets = async (event) => {
     return response.getResponse(statusCode, created);
 }
 
+
+module.exports.deleteAsset = async (event) => {
+    let userId = "";
+    try {
+        userId = getUserIdFromEvent(event);
+    } catch (e) {
+        return response.getResponse(e.code, e.message);
+    }
+
+    let statusCode = 200;
+    let id = event.pathParameters.id;
+    let assets = await userRepo.getAsset(id);
+    let asset = assets.Items[0];
+    //check if asset exists and it is user's
+    if(!asset || asset.userId!= userId){
+        return response.getResponse(400, "There is no such asset");
+    }
+    //todo add deletion of all cards
+    let cards = await userRepo.getCards(userId, id);
+    if(cards.Items){
+        cards.Items.forEach(e=>{
+            userRepo.deleteCardById(e.id);
+        })
+    }
+    userRepo.deleteAssetById(asset.id);
+    return response.getResponse(statusCode, "Asset was successfuly deleted!");
+}
+
 module.exports.getCardsOfAsset = async (event) => {
     let userId = "";
     try {
@@ -225,6 +256,26 @@ module.exports.postCards = async (event) => {
 
     let created = await userRepo.putCard(card);
     return response.getResponse(statusCode, created);
+}
+
+module.exports.deleteCard = async (event) => {
+    let userId = "";
+    try {
+        userId = getUserIdFromEvent(event);
+    } catch (e) {
+        return response.getResponse(e.code, e.message);
+    }
+
+    let statusCode = 200;
+    let id = event.pathParameters.id;
+    let cards = await userRepo.getCard(id);
+    let card = cards.Items[0];
+    //check if card is user's
+    if(!card || card.userId!= userId){
+        return response.getResponse(400, "There is no such card");
+    }
+    userRepo.deleteCardById(card.id);
+    return response.getResponse(statusCode, "Card was successfuly deleted!");
 }
 
 module.exports.getCards = async (event) => {
@@ -323,35 +374,62 @@ module.exports.forgotPassword = async (event) => {
         createdAt: Math.floor(Date.now() / 1000)
     });
 
-    console.log('token',token);
+    console.log('token', token);
 
-    //send temp link
-    //todo url of front
+
+    // //send temp link
+    // //todo url of front
     let urlToResetPassword = "https://pinqr.link/#/reset-password?token="
-    sendmail({
-        from: 'info@pinqr.link',
-        to: body.email,
-        subject: 'test sendmail',
-        html: 'To recover your password, please go by the link ' + urlToResetPassword+token.id
-    }, function (err, reply) {
-        console.log(err && err.stack);
-        console.dir(reply);
-    });
+    let res = await this.sendEmail(
+        {
+            "email": body.email,
+            "data": 'To recover your password, please go by the link ' + urlToResetPassword + token.id
+        });
+    console.log(res);
+
+    // sendmail({
+    //     from: 'info@pinqr.link',
+    //     to: body.email,
+    //     subject: 'test sendmail',
+    //     html: 'To recover your password, please go by the link ' + urlToResetPassword+token.id
+    // }, function (err, reply) {
+    //     console.log(err && err.stack);
+    //     console.dir(reply);
+    // });
 
     return response.getResponse(statusCode, successResponse);
 
 }
+
+module.exports.sendEmail = async function (data) {
+    console.log(data.email);
+    var params = {
+        Destination: {
+            ToAddresses: [data.email],
+        },
+        Message: {
+            Body: {
+                Text: { Data: data.data },
+            },
+
+            Subject: { Data: "Password recovering" },
+        },
+        Source: "info@pinqr.link",
+    };
+
+    return ses.sendEmail(params).promise()
+};
 
 module.exports.recoverPassword = async (event) => {
     const body = JSON.parse(event.body);
 
     //check token
     console.log(body);
-    console.log("token is ",body.token);
+    console.log("token is ", body.token);
 
     let tokenResponse = await userRepo.getRecoverTokenById(body.token);
-    console.log("token response",JSON.stringify(tokenResponse))
-    if(!tokenResponse || !tokenResponse.Count){
+    console.log("token response", JSON.stringify(tokenResponse))
+    if (!tokenResponse || !tokenResponse.Count) {
         return response.getResponse(403, "Password recovering failed. Wrong token");
     }
 

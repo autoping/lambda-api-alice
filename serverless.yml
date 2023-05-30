@@ -68,6 +68,14 @@ functions:
           method: get
           cors: true
 
+  deleteAsset:
+    handler: user-service.deleteAsset
+    events:
+      - http:
+          path: assets/{id}
+          method: delete
+          cors: true
+
   getCardsOfAsset:
     handler: user-service.getCardsOfAsset
     events:
@@ -98,6 +106,14 @@ functions:
       - http:
           path: cards/{id}
           method: get
+          cors: true
+
+  deleteCard:
+    handler: user-service.deleteCard
+    events:
+      - http:
+          path: cards/{id}
+          method: delete
           cors: true
 
   getPublicByCard:
