@@ -69,7 +69,7 @@ module.exports.deleteAssetById = async function (id) {
           }
     };
 
-    return await docClient.delete(params).promise();
+    return docClient.delete(params).promise();
 };
 
 module.exports.getAssets = async function (userId) {
@@ -116,7 +116,7 @@ module.exports.deleteCardById = async function (id) {
           }
     };
 
-    return await docClient.delete(params).promise();
+    return docClient.delete(params).promise();
 };
 
 module.exports.getCard = async function (id) {
