@@ -183,10 +183,10 @@ module.exports.deleteAsset = async (event) => {
     let cards = await userRepo.getCards(userId, id);
     if(cards.Items){
         cards.Items.forEach(e=>{
-            await userRepo.deleteCardById(e.id);
+            userRepo.deleteCardById(e.id);
         })
     }
-    await userRepo.deleteAssetById(asset.id);
+    userRepo.deleteAssetById(asset.id);
     return response.getResponse(statusCode, "Asset was successfuly deleted!");
 }
 
@@ -274,7 +274,7 @@ module.exports.deleteCard = async (event) => {
     if(!card || card.userId!= userId){
         return response.getResponse(400, "There is no such card");
     }
-    await userRepo.deleteCardById(card.id);
+    userRepo.deleteCardById(card.id);
     return response.getResponse(statusCode, "Card was successfuly deleted!");
 }
 
