@@ -6,7 +6,8 @@ module.exports.getResponse = function (statusCode, body) {
         headers: {
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Headers': '*',
-            'Access-Control-Allow-Methods': '*'
+            'Access-Control-Allow-Methods': '*',
+            'cache-control': 'public, max-age=0'
         },
         body: JSON.stringify(body)
     };
