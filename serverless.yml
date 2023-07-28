@@ -82,7 +82,8 @@ functions:
       - http:
           path: assets/{id}/cards
           method: get
-          cors: true
+          cors:
+            headers: '*'
 
   postCards:
     handler: user-service.postCards
