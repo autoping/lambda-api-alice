@@ -84,6 +84,7 @@ functions:
           method: get
           cors:
             headers: '*'
+            cacheControl: 'max-age=0, s-maxage=0, proxy-revalidate'
 
   postCards:
     handler: user-service.postCards
