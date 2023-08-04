@@ -82,12 +82,10 @@ functions:
       - http:
           path: assets/{id}/cards
           method: get
-          response:
-            headers:
-              Cache-Control: "'max-age=1'"
-          cors:
-            headers: '*'
-            cacheControl: 'max-age=1, s-maxage=1, proxy-revalidate'
+          RequestParameters:
+            - method.request.querystring.ts:
+                Required: false
+                Caching: true
 
   postCards:
     handler: user-service.postCards
